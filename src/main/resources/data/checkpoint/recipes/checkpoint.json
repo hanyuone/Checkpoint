@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " e ",
+    "sos",
+    "sbs"
+  ],
+  "key": {
+    "e": {"item": "minecraft:ender_eye"},
+    "s": {"item": "minecraft:smooth_stone"},
+    "o": {"item": "minecraft:obsidian"},
+    "b": {"item": "minecraft:blaze_rod"}
+  },
+  "result": {
+    "item": "checkpoint:checkpoint",
+    "count": 1
+  }
+}
