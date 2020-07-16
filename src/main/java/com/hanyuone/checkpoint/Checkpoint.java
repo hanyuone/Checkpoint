@@ -5,6 +5,7 @@ import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.CheckpointPairStorage;
 import com.hanyuone.checkpoint.capability.ICheckpointPair;
 import com.hanyuone.checkpoint.client.ClientHandler;
+import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.util.RegistryHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +39,7 @@ public class Checkpoint {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
 
         RegistryHandler.init();
+        CheckpointPacketHandler.register();
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);

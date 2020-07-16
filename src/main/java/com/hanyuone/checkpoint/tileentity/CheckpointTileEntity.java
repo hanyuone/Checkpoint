@@ -1,11 +1,14 @@
 package com.hanyuone.checkpoint.tileentity;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairHandler;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.register.TileEntityRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -25,6 +28,11 @@ public class CheckpointTileEntity extends TileEntity {
 
     private ItemStackHandler createPearlHandler() {
         return new ItemStackHandler(1) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                markDirty();
+            }
+
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
                 return stack.getItem() == Items.ENDER_PEARL;
@@ -46,6 +54,8 @@ public class CheckpointTileEntity extends TileEntity {
         super(TileEntityRegister.CHECKPOINT_TILE_ENTITY.get());
     }
 
+    // NBT stuff
+
     @Override
     public void read(CompoundNBT compound) {
         this.pearlHandler.deserializeNBT(compound.getCompound("pearls"));
@@ -62,6 +72,30 @@ public class CheckpointTileEntity extends TileEntity {
         return super.write(compound);
     }
 
+    @Nullable
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return super.getUpdatePacket();
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+
+    }
+
+    @Override
+    public CompoundNBT getUpdateTag() {
+        CompoundNBT tag = new CompoundNBT();
+        return this.write(tag);
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundNBT tag) {
+        this.read(tag);
+    }
+
+    // Capabilities
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
@@ -74,6 +108,8 @@ public class CheckpointTileEntity extends TileEntity {
         return super.getCapability(cap, side);
     }
 
+    // Programmatically get/spend pearls
+
     public int calculateCost() {
         if (this.pairHandler.hasPair()) {
             double distance = Math.sqrt(this.pos.distanceSq(this.pairHandler.getBlockPos()));
@@ -81,5 +117,14 @@ public class CheckpointTileEntity extends TileEntity {
         } else {
             return -1;
         }
+    }
+
+    public int getEnderPearls() {
+        return this.pearlHandler.getStackInSlot(0).getCount();
+    }
+
+    public void spendEnderPearls(int amount) {
+        this.pearlHandler.extractItem(0, amount, false);
+        this.markDirty();
     }
 }

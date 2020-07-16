@@ -1,5 +1,6 @@
 package com.hanyuone.checkpoint.container;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.register.BlockRegister;
 import com.hanyuone.checkpoint.register.ContainerRegister;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
@@ -141,13 +142,5 @@ public class CheckpointContainer extends Container {
 
     public TileEntity getTileEntity() {
         return this.tileEntity;
-    }
-
-    public int getEnderPearls() {
-        return this.inventory.getStackInSlot(0).getCount();
-    }
-
-    public void setEnderPearls(int amount) {
-        this.inventory.insertItem(0, new ItemStack(Items.ENDER_PEARL, amount), false);
     }
 }

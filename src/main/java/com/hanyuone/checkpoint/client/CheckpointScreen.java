@@ -3,16 +3,22 @@ package com.hanyuone.checkpoint.client;
 import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
+import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.network.WarpPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
 public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("checkpoint:textures/gui/container/checkpoint.png");
@@ -38,16 +44,16 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
 
         Button warpButton = new Button(buttonLeft, buttonTop, 40, 20, warpButtonText, button -> {
             if (containerEntity instanceof CheckpointTileEntity) {
+                CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
+
                 // Assume hasPair() is always true
                 containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
                     BlockPos pos = handler.getBlockPos();
-                    // int newAmount = this.container.getEnderPearls() - ((CheckpointTileEntity) containerEntity).calculateCost();
 
-                    // this.container.setEnderPearls(newAmount);
-                    Checkpoint.LOGGER.debug(pos);
+                    checkpointEntity.spendEnderPearls(checkpointEntity.calculateCost());
 
-                    this.player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
-                    this.player.setPositionAndRotation(pos.getX(), pos.getY(), pos.getZ(), this.player.rotationYaw, this.player.rotationPitch);
+                    WarpPacket packet = new WarpPacket(pos);
+                    CheckpointPacketHandler.INSTANCE.sendToServer(packet);
                 });
             }
         });
@@ -64,7 +70,7 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
             }
 
             containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                warpButton.active = handler.hasPair() && this.container.getEnderPearls() >= cost;
+                warpButton.active = handler.hasPair() && checkpointEntity.getEnderPearls() >= cost;
             });
         }
     }

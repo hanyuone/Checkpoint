@@ -133,16 +133,17 @@ public class CheckpointBlock extends ContainerBlock {
         placer.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(placerHandler -> {
             if (placerHandler.hasPair() && placerHandler.getBlockPos() != pos) {
                 BlockPos oldPos = placerHandler.getBlockPos();
-
-                tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
-                    entityHandler.setBlockPos(oldPos);
-                });
-
                 TileEntity oldEntity = worldIn.getTileEntity(oldPos);
 
-                oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> {
-                   oldHandler.setBlockPos(pos);
-                });
+                if (oldEntity instanceof CheckpointTileEntity) {
+                    tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
+                        entityHandler.setBlockPos(oldPos);
+                    });
+
+                    oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> {
+                        oldHandler.setBlockPos(pos);
+                    });
+                }
 
                 placerHandler.clearBlockPos();
             } else {
