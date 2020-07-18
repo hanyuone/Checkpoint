@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.capability;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;

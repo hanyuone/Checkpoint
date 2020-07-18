@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.container;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.register.BlockRegister;
 import com.hanyuone.checkpoint.register.ContainerRegister;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;

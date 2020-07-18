@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.client;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
@@ -9,26 +8,22 @@ import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("checkpoint:textures/gui/container/checkpoint.png");
-    private String costText = "";
-
-    private PlayerEntity player;
+    private Button warpButton;
 
     public CheckpointScreen(CheckpointContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
-        this.player = inv.player;
     }
 
     @Override
@@ -38,41 +33,24 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         TileEntity containerEntity = this.container.getTileEntity();
 
         // Display button
-        String warpButtonText = "Warp";
+        String warpButtonText = I18n.format("gui.checkpoint.warp");
         int buttonLeft = this.guiLeft + (this.xSize * 2 / 3) - (40 / 2);
         int buttonTop = this.guiTop + 32;
 
-        Button warpButton = new Button(buttonLeft, buttonTop, 40, 20, warpButtonText, button -> {
+        this.warpButton = new Button(buttonLeft, buttonTop, 40, 20, warpButtonText, button -> {
             if (containerEntity instanceof CheckpointTileEntity) {
                 CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
 
-                // Assume hasPair() is always true
+                // Assume hasPair() is always true, since the button is only active *if* hasPair() is true
                 containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
                     BlockPos pos = handler.getBlockPos();
-
-                    checkpointEntity.spendEnderPearls(checkpointEntity.calculateCost());
-
-                    WarpPacket packet = new WarpPacket(pos);
+                    WarpPacket packet = new WarpPacket(checkpointEntity.getPos(), pos);
                     CheckpointPacketHandler.INSTANCE.sendToServer(packet);
                 });
             }
         });
 
-        this.addButton(warpButton);
-
-        if (containerEntity instanceof CheckpointTileEntity) {
-            CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
-
-            int cost = checkpointEntity.calculateCost();
-
-            if (cost > 0) {
-                this.costText = "Cost: " + cost;
-            }
-
-            containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                warpButton.active = handler.hasPair() && checkpointEntity.getEnderPearls() >= cost;
-            });
-        }
+        this.addButton(this.warpButton);
     }
 
     @Override
@@ -91,14 +69,39 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         // this.ySize - 112: in the row straight above the inventory, + 2: vertically centre the text
         this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8.0f, (float)(this.ySize - 112 + 2), 0x404040);
 
-        // Display amount of ender eyes needed
-        if (!this.costText.isEmpty()) {
-            int textWidth = this.minecraft.fontRenderer.getStringWidth(this.costText);
-            float textLeft = (this.xSize * 2 / 3.0f) - (textWidth / 2.0f);
-            float textTop = 20.0f;
-            this.font.drawString(costText, textLeft + 1, textTop + 1, 0x203e08);
-            this.font.drawString(costText, textLeft, textTop, 0x84ea2e);
+        // Warp cost text and warp button config
+        CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) this.container.getTileEntity();
+        int cost = checkpointEntity.calculateCost();
+
+        String costText;
+        int topColour;
+        int bottomColour;
+
+        // `cost > 0` indicates that the cost is not -1 (meaning there's no pair) and not 0 (meaning
+        // the paired portal is somehow in the exact same place as the original one), so the checkpoint has
+        // a pair
+        if (cost > 0) {
+            costText = I18n.format("gui.checkpoint.cost", cost);
+            topColour = 0x84ea2e;
+            bottomColour = 0x203e08;
+
+            // Checks whether we actually have enough ender pearls to transport us
+            this.warpButton.active = checkpointEntity.getEnderPearls() >= cost;
+        } else {
+            costText = I18n.format("gui.checkpoint.notPaired");
+            topColour = 0xe75558;
+            bottomColour = 0x300703;
+
+            this.warpButton.active = false;
         }
+
+        // Configures a "layered text", similar to how anvils do it with "Enchantment cost"
+        int textWidth = this.minecraft.fontRenderer.getStringWidth(costText);
+        float textLeft = (this.xSize * 2 / 3.0f) - (textWidth / 2.0f);
+        float textTop = 20.0f;
+
+        this.font.drawString(costText, textLeft + 1, textTop + 1, bottomColour);
+        this.font.drawString(costText, textLeft, textTop, topColour);
     }
 
     @Override

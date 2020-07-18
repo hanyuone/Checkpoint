@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.tileentity;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairHandler;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.register.TileEntityRegister;
@@ -123,8 +122,8 @@ public class CheckpointTileEntity extends TileEntity {
         return this.pearlHandler.getStackInSlot(0).getCount();
     }
 
-    public void spendEnderPearls(int amount) {
-        this.pearlHandler.extractItem(0, amount, false);
+    public void spendEnderPearls() {
+        this.pearlHandler.extractItem(0, this.calculateCost(), false);
         this.markDirty();
     }
 }
