@@ -3,9 +3,9 @@ package com.hanyuone.checkpoint.capability;
 import net.minecraft.util.math.BlockPos;
 
 public interface ICheckpointPair {
-    public BlockPos getBlockPos();
-    public void setBlockPos(BlockPos pos);
-    public void clearBlockPos();
+    BlockPos getBlockPos();
+    void setBlockPos(BlockPos pos);
+    void clearBlockPos();
 
-    public boolean hasPair();
+    boolean hasPair();
 }

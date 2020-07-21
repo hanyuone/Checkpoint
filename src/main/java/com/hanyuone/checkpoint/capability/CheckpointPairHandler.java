@@ -38,17 +38,15 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT tag = new CompoundNBT();
-
         tag.putLong("block_pos", this.getBlockPos().toLong());
         tag.putBoolean("has_pair", this.hasPair());
-
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        if (nbt.getBoolean("has_pair")) {
-            this.setBlockPos(BlockPos.fromLong(nbt.getLong("block_pos")));
+    public void deserializeNBT(CompoundNBT tag) {
+        if (tag.getBoolean("has_pair")) {
+            this.setBlockPos(BlockPos.fromLong(tag.getLong("block_pos")));
         }
     }
 }

@@ -19,34 +19,33 @@ public class WarpPacket {
     }
 
     public static void encode(WarpPacket packet, PacketBuffer buffer) {
-        buffer.writeVarLong(packet.entityLocation.toLong());
-        buffer.writeVarLong(packet.destination.toLong());
+        buffer.writeLong(packet.entityLocation.toLong());
+        buffer.writeLong(packet.destination.toLong());
     }
 
     public static WarpPacket decode(PacketBuffer buffer) {
-        BlockPos entityLocation = BlockPos.fromLong(buffer.readVarLong());
-        BlockPos destination = BlockPos.fromLong(buffer.readVarLong());
+        BlockPos entityLocation = BlockPos.fromLong(buffer.readLong());
+        BlockPos destination = BlockPos.fromLong(buffer.readLong());
+
         return new WarpPacket(entityLocation, destination);
     }
 
-    public static class Handler {
-        public static void handle(final WarpPacket message, Supplier<NetworkEvent.Context> ctx) {
-            ctx.get().enqueueWork(() -> {
-                ServerPlayerEntity player = ctx.get().getSender();
+    public static void handle(final WarpPacket message, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            ServerPlayerEntity player = ctx.get().getSender();
 
-                BlockPos location = message.entityLocation;
-                TileEntity entity = player.getServerWorld().getTileEntity(location);
+            BlockPos location = message.entityLocation;
+            TileEntity entity = player.getServerWorld().getTileEntity(location);
 
-                if (entity instanceof CheckpointTileEntity) {
-                    CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) entity;
-                    checkpointEntity.spendEnderPearls();
-                }
+            if (entity instanceof CheckpointTileEntity) {
+                CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) entity;
+                checkpointEntity.spendEnderPearls();
+            }
 
-                BlockPos position = message.destination;
-                player.connection.setPlayerLocation(position.getX(), position.getY(), position.getZ(), player.rotationYaw, player.rotationPitch);
-            });
+            BlockPos position = message.destination;
+            player.connection.setPlayerLocation(position.getX(), position.getY(), position.getZ(), player.rotationYaw, player.rotationPitch);
+        });
 
-            ctx.get().setPacketHandled(true);
-        }
+        ctx.get().setPacketHandled(true);
     }
 }

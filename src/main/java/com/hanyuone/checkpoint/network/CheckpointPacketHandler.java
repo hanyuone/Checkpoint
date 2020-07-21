@@ -15,6 +15,9 @@ public final class CheckpointPacketHandler {
     );
 
     public static void register() {
-        INSTANCE.registerMessage(0, WarpPacket.class, WarpPacket::encode, WarpPacket::decode, WarpPacket.Handler::handle);
+        int index = 0;
+        INSTANCE.registerMessage(index++, WarpPacket.class, WarpPacket::encode, WarpPacket::decode, WarpPacket::handle);
+        INSTANCE.registerMessage(index++, SyncPairPacket.class, SyncPairPacket::encode, SyncPairPacket::decode, SyncPairPacket::handle);
+        INSTANCE.registerMessage(index++, ClientSyncPairPacket.class, ClientSyncPairPacket::encode, ClientSyncPairPacket::decode, ClientSyncPairPacket::handle);
     }
 }

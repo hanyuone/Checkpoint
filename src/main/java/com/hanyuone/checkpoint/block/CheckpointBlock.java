@@ -3,10 +3,14 @@ package com.hanyuone.checkpoint.block;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.ICheckpointPair;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
+import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.network.SyncPairPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
+import com.hanyuone.checkpoint.util.EventHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -31,6 +35,7 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -100,6 +105,8 @@ public class CheckpointBlock extends ContainerBlock {
         BlockPos otherPos = half == CheckpointHalf.LOWER ? pos.up() : pos.down();
         BlockState blockState = worldIn.getBlockState(otherPos);
 
+        TileEntity checkpointEntity = worldIn.getTileEntity(pos);
+
         // Checks if the other half of the checkpoint we want to destroy is
         // *actually* the other half
         if (blockState.getBlock() == this && blockState.get(HALF) != half) {
@@ -110,16 +117,28 @@ public class CheckpointBlock extends ContainerBlock {
             if (!worldIn.isRemote && !player.isCreative() && player.canHarvestBlock(blockState)) {
                 Block.spawnDrops(state, worldIn, pos, null, player, itemStack);
                 Block.spawnDrops(blockState, worldIn, otherPos, null, player, itemStack);
+
+                checkpointEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
+                    for (int i = 0; i < handler.getSlots(); i++) {
+                        worldIn.addEntity(new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(i)));
+                    }
+                });
             }
         }
 
         // Disable the other half of the checkpoint pair
-        TileEntity checkpointEntity = worldIn.getTileEntity(pos);
-
         checkpointEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
             if (handler.hasPair()) {
                 TileEntity otherEntity = worldIn.getTileEntity(handler.getBlockPos());
                 otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
+            }
+        });
+
+        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(playerHandler -> {
+            if (playerHandler.getBlockPos() == pos) {
+                playerHandler.clearBlockPos();
+                SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
+                CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             }
         });
 
@@ -146,8 +165,12 @@ public class CheckpointBlock extends ContainerBlock {
                 }
 
                 placerHandler.clearBlockPos();
+                SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
+                CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             } else {
                 placerHandler.setBlockPos(pos);
+                SyncPairPacket packet = new SyncPairPacket(true, pos);
+                CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             }
         });
 
@@ -172,7 +195,11 @@ public class CheckpointBlock extends ContainerBlock {
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (!worldIn.isRemote) {
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
+            // Redirecting all upper-half `CheckpointBlock` interactions to display the GUI
+            // of the lower half instead, since the lower half is what stores all the relevant
+            // information
+            BlockPos lowerPos = state.get(HALF) == CheckpointHalf.UPPER ? pos.down() : pos;
+            TileEntity tileEntity = worldIn.getTileEntity(lowerPos);
 
             if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
@@ -183,7 +210,7 @@ public class CheckpointBlock extends ContainerBlock {
 
                     @Override
                     public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                        return new CheckpointContainer(i, worldIn, pos, playerInventory);
+                        return new CheckpointContainer(i, worldIn, lowerPos, playerInventory);
                     }
                 };
                 
