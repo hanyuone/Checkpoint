@@ -1,5 +1,6 @@
 package com.hanyuone.checkpoint.block;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.ICheckpointPair;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
@@ -135,7 +136,11 @@ public class CheckpointBlock extends ContainerBlock {
         });
 
         player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(playerHandler -> {
-            if (playerHandler.getBlockPos() == pos) {
+            Checkpoint.LOGGER.debug("Outside the if!");
+
+            if (playerHandler.hasPair() && playerHandler.getBlockPos() == pos) {
+                Checkpoint.LOGGER.debug("Inside the if!");
+
                 playerHandler.clearBlockPos();
                 SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);

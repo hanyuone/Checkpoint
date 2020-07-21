@@ -3,11 +3,12 @@ package com.hanyuone.checkpoint.util;
 import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
-import com.hanyuone.checkpoint.network.SyncPairPacket;
+import com.hanyuone.checkpoint.network.ClientSyncPairPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 @Mod.EventBusSubscriber(modid = Checkpoint.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
@@ -16,8 +17,8 @@ public class EventHandler {
         PlayerEntity player = event.getPlayer();
 
         player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-            SyncPairPacket packet = new SyncPairPacket(handler.hasPair(), handler.getBlockPos());
-            CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+            CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
 
@@ -26,8 +27,8 @@ public class EventHandler {
         PlayerEntity player = event.getPlayer();
 
         player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-            SyncPairPacket packet = new SyncPairPacket(handler.hasPair(), handler.getBlockPos());
-            CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+            CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
 
@@ -36,8 +37,8 @@ public class EventHandler {
         PlayerEntity player = event.getPlayer();
 
         player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-            SyncPairPacket packet = new SyncPairPacket(handler.hasPair(), handler.getBlockPos());
-            CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+            CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
 }
