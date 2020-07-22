@@ -17,8 +17,18 @@ public final class CheckpointPacketHandler {
 
     public static void register() {
         int index = 0;
-        INSTANCE.registerMessage(index++, WarpPacket.class, WarpPacket::encode, WarpPacket::decode, WarpPacket::handle);
-        INSTANCE.registerMessage(index++, SyncPairPacket.class, SyncPairPacket::encode, SyncPairPacket::decode, SyncPairPacket::handle);
+
+        INSTANCE.messageBuilder(WarpPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(WarpPacket::encode)
+                .decoder(WarpPacket::decode)
+                .consumer(WarpPacket::handle)
+                .add();
+
+        INSTANCE.messageBuilder(SyncPairPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(SyncPairPacket::encode)
+                .decoder(SyncPairPacket::decode)
+                .consumer(SyncPairPacket::handle)
+                .add();
 
         INSTANCE.messageBuilder(ClientSyncPairPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(ClientSyncPairPacket::encode)

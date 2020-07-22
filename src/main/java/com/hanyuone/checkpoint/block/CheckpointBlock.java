@@ -18,6 +18,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
@@ -119,11 +120,8 @@ public class CheckpointBlock extends ContainerBlock {
                 Block.spawnDrops(state, worldIn, pos, null, player, itemStack);
                 Block.spawnDrops(blockState, worldIn, otherPos, null, player, itemStack);
 
-                checkpointEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-                    for (int i = 0; i < handler.getSlots(); i++) {
-                        worldIn.addEntity(new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(i)));
-                    }
-                });
+                ItemStack enderPearls = new ItemStack(Items.ENDER_PEARL, ((CheckpointTileEntity) checkpointEntity).getEnderPearls());
+                worldIn.addEntity(new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), enderPearls));
             }
         }
 
