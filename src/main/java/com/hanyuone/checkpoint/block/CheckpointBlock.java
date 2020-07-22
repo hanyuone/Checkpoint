@@ -135,12 +135,10 @@ public class CheckpointBlock extends ContainerBlock {
             }
         });
 
+        // If the checkpoint was just made, delete the saved data on the player
+        // so the next checkpoint doesn't point to a dead BlockPos
         player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(playerHandler -> {
-            Checkpoint.LOGGER.debug("Outside the if!");
-
-            if (playerHandler.hasPair() && playerHandler.getBlockPos() == pos) {
-                Checkpoint.LOGGER.debug("Inside the if!");
-
+            if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
                 playerHandler.clearBlockPos();
                 SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
