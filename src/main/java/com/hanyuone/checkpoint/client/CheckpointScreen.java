@@ -1,6 +1,6 @@
 package com.hanyuone.checkpoint.client;
 
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.WarpPacket;
@@ -88,7 +88,7 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
             // Checks whether we actually have enough ender pearls to transport us
             this.warpButton.active = checkpointEntity.getEnderPearls() >= cost;
         } else {
-            costText = I18n.format("gui.checkpoint.notPaired");
+            costText = I18n.format("gui.checkpoint.not_paired");
             topColour = 0xe75558;
             bottomColour = 0x300703;
 

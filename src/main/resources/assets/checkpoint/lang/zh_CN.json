@@ -1,0 +1,13 @@
+{
+  "block.checkpoint.checkpoint": "穿梭点",
+  "container.checkpoint.checkpoint": "穿梭点",
+
+  "gui.checkpoint.cost": "费用：%s",
+  "gui.checkpoint.not_paired": "尚未成对！",
+  "gui.checkpoint.warp": "穿梭",
+
+  "itemGroup.checkpointTab": "穿梭点",
+
+  "tooltip.checkpoint.pair_location": "会与 %s 成对",
+  "tooltip.checkpoint.not_paired": "尚未成对！"
+}

@@ -1,13 +1,12 @@
 package com.hanyuone.checkpoint.block;
 
-import com.hanyuone.checkpoint.Checkpoint;
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
-import com.hanyuone.checkpoint.capability.ICheckpointPair;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
+import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPairPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
-import com.hanyuone.checkpoint.util.EventHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
@@ -37,10 +36,10 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class CheckpointBlock extends ContainerBlock {
     public static final EnumProperty<CheckpointHalf> HALF = EnumProperty.create("half", CheckpointHalf.class);
@@ -131,15 +130,21 @@ public class CheckpointBlock extends ContainerBlock {
                 TileEntity otherEntity = worldIn.getTileEntity(handler.getBlockPos());
                 otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
             }
-        });
 
-        // If the checkpoint was just made, delete the saved data on the player
-        // so the next checkpoint doesn't point to a dead BlockPos
-        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(playerHandler -> {
-            if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
-                playerHandler.clearBlockPos();
-                SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
-                CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+            UUID playerId = handler.getPlayerId();
+
+            if (playerId != null) {
+                PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
+
+                // If the checkpoint was just made, delete the saved data on the player
+                // so the next checkpoint doesn't point to a dead BlockPos
+                playerFromEntity.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(playerHandler -> {
+                    if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
+                        playerHandler.clearBlockPos();
+                        SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
+                        CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+                    }
+                });
             }
         });
 
@@ -150,8 +155,12 @@ public class CheckpointBlock extends ContainerBlock {
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-        placer.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(placerHandler -> {
-            if (placerHandler.hasPair() && placerHandler.getBlockPos() != pos) {
+        tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
+            entityHandler.setPlayerId(placer.getUniqueID());
+        });
+
+        placer.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(placerHandler -> {
+            if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
                 BlockPos oldPos = placerHandler.getBlockPos();
                 TileEntity oldEntity = worldIn.getTileEntity(oldPos);
 

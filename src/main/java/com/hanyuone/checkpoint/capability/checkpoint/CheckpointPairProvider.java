@@ -1,4 +1,4 @@
-package com.hanyuone.checkpoint.capability;
+package com.hanyuone.checkpoint.capability.checkpoint;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;

@@ -1,4 +1,4 @@
-package com.hanyuone.checkpoint.capability;
+package com.hanyuone.checkpoint.capability.checkpoint;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -15,6 +15,7 @@ public class CheckpointPairStorage implements Capability.IStorage<ICheckpointPai
         CompoundNBT tag = new CompoundNBT();
         tag.putLong("block_pos", instance.getBlockPos().toLong());
         tag.putBoolean("has_pair", instance.hasPair());
+        tag.putUniqueId("player_id", instance.getPlayerId());
         return tag;
     }
 
@@ -25,5 +26,7 @@ public class CheckpointPairStorage implements Capability.IStorage<ICheckpointPai
         if (tag.getBoolean("has_pair")) {
             instance.setBlockPos(BlockPos.fromLong(tag.getLong("block_pos")));
         }
+
+        instance.setPlayerId(tag.getUniqueId("player_id"));
     }
 }

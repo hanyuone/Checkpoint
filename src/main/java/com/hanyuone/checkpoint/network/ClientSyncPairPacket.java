@@ -1,6 +1,7 @@
 package com.hanyuone.checkpoint.network;
 
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -42,7 +43,7 @@ public class ClientSyncPairPacket {
     private static void handleOnClient(ClientSyncPairPacket message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
-        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR).ifPresent(handler -> {
+        player.getCapability(PlayerPairProvider.PLAYER_PAIR).ifPresent(handler -> {
             if (message.hasPair) {
                 handler.setBlockPos(message.pos);
             } else {

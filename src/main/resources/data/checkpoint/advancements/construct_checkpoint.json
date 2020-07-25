@@ -1,0 +1,30 @@
+{
+  "display": {
+    "icon": {
+      "item": "checkpoint:checkpoint"
+    },
+    "title": {
+      "translate": "advancement.checkpoint.construct"
+    },
+    "description": {
+      "translate": "advancement.checkpoint.construct.desc"
+    }
+  },
+  "parent": "minecraft:end/enter_end_gateway",
+  "criteria": {
+    "inventory": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "checkpoint:checkpoint",
+            "count": 1
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

@@ -1,7 +1,7 @@
 package com.hanyuone.checkpoint.tileentity;
 
-import com.hanyuone.checkpoint.capability.CheckpointPairHandler;
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairHandler;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.register.TileEntityRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

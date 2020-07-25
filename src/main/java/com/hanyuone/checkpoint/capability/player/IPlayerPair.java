@@ -1,8 +1,8 @@
-package com.hanyuone.checkpoint.capability;
+package com.hanyuone.checkpoint.capability.player;
 
 import net.minecraft.util.math.BlockPos;
 
-public interface ICheckpointPair {
+public interface IPlayerPair {
     BlockPos getBlockPos();
     void setBlockPos(BlockPos pos);
     void clearBlockPos();

@@ -1,8 +1,16 @@
 {
   "block.checkpoint.checkpoint": "Checkpoint",
   "container.checkpoint.checkpoint": "Checkpoint",
+
+  "itemGroup.checkpointTab": "Checkpoint",
+
+  "advancement.checkpoint.construct": "Half of a whole",
+  "advancement.checkpoint.construct_desc": "Craft a checkpoint",
+
   "gui.checkpoint.cost": "Cost: %d",
-  "gui.checkpoint.notPaired": "Not paired!",
+  "gui.checkpoint.not_paired": "Not paired!",
   "gui.checkpoint.warp": "Warp",
-  "itemGroup.checkpointTab": "Checkpoint"
+
+  "tooltip.checkpoint.pair_location": "Will be paired to %s",
+  "tooltip.checkpoint.not_paired": "Not paired!"
 }

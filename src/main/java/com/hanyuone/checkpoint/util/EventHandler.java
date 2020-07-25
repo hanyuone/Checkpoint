@@ -1,7 +1,7 @@
 package com.hanyuone.checkpoint.util;
 
 import com.hanyuone.checkpoint.Checkpoint;
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.ClientSyncPairPacket;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,7 +16,7 @@ public class EventHandler {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
             ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
@@ -26,7 +26,7 @@ public class EventHandler {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
             ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
@@ -36,7 +36,7 @@ public class EventHandler {
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
             ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });

@@ -1,9 +1,13 @@
 package com.hanyuone.checkpoint;
 
-import com.hanyuone.checkpoint.capability.CheckpointPairHandler;
-import com.hanyuone.checkpoint.capability.CheckpointPairProvider;
-import com.hanyuone.checkpoint.capability.CheckpointPairStorage;
-import com.hanyuone.checkpoint.capability.ICheckpointPair;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairHandler;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairStorage;
+import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
+import com.hanyuone.checkpoint.capability.player.IPlayerPair;
+import com.hanyuone.checkpoint.capability.player.PlayerPairHandler;
+import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerPairStorage;
 import com.hanyuone.checkpoint.client.ClientHandler;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.util.RegistryHandler;
@@ -21,7 +25,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,6 +50,7 @@ public class Checkpoint {
 
     private void setup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(ICheckpointPair.class, new CheckpointPairStorage(), CheckpointPairHandler::new);
+        CapabilityManager.INSTANCE.register(IPlayerPair.class, new PlayerPairStorage(), PlayerPairHandler::new);
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
@@ -56,7 +60,7 @@ public class Checkpoint {
     @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
-            event.addCapability(new ResourceLocation(Checkpoint.MOD_ID, "pair"), new CheckpointPairProvider());
+            event.addCapability(new ResourceLocation(Checkpoint.MOD_ID, "player_pair"), new PlayerPairProvider());
         }
     }
 
