@@ -1,7 +1,7 @@
 package com.hanyuone.checkpoint.item;
 
 import com.hanyuone.checkpoint.Checkpoint;
-import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.register.BlockRegister;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -33,7 +33,7 @@ public class CheckpointItem extends BlockItem {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (player != null) {
-            player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
                 StringTextComponent component;
 
                 if (handler.hasPair()) {

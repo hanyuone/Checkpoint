@@ -24,16 +24,16 @@ public final class CheckpointPacketHandler {
                 .consumer(WarpPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(SyncPairPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(SyncPairPacket::encode)
-                .decoder(SyncPairPacket::decode)
-                .consumer(SyncPairPacket::handle)
+        INSTANCE.messageBuilder(SyncPlayerPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(SyncPlayerPacket::encode)
+                .decoder(SyncPlayerPacket::decode)
+                .consumer(SyncPlayerPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(ClientSyncPairPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(ClientSyncPairPacket::encode)
-                .decoder(ClientSyncPairPacket::decode)
-                .consumer(ClientSyncPairPacket::handle)
+        INSTANCE.messageBuilder(ClientSyncPlayerPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(ClientSyncPlayerPacket::encode)
+                .decoder(ClientSyncPlayerPacket::decode)
+                .consumer(ClientSyncPlayerPacket::handle)
                 .add();
     }
 }

@@ -14,7 +14,8 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
     public CheckpointPairHandler() {
         this.pos = BlockPos.ZERO;
         this.hasPair = false;
-        this.playerId = null;
+        // Default value, since the upper half can't be null (triggering NPE)
+        this.playerId = new UUID(0, 0);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
         CompoundNBT tag = new CompoundNBT();
         tag.putLong("block_pos", this.getBlockPos().toLong());
         tag.putBoolean("has_pair", this.hasPair());
-        tag.putUniqueId("player_id", this.playerId);
+        tag.putUniqueId("player_id", this.getPlayerId());
         return tag;
     }
 

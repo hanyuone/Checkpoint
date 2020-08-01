@@ -2,11 +2,16 @@
   "block.checkpoint.checkpoint": "穿梭点",
   "container.checkpoint.checkpoint": "穿梭点",
 
+  "itemGroup.checkpointTab": "穿梭点",
+
+  "advancement.construct": "二分之一",
+  "advancement.construct.desc": "合成一个穿梭点",
+  "advancement.distance": "斗转星移",
+  "advancement.distance.desc": "用穿梭点移动1000米",
+
   "gui.checkpoint.cost": "费用：%s",
   "gui.checkpoint.not_paired": "尚未成对！",
   "gui.checkpoint.warp": "穿梭",
-
-  "itemGroup.checkpointTab": "穿梭点",
 
   "tooltip.checkpoint.pair_location": "会与 %s 成对",
   "tooltip.checkpoint.not_paired": "尚未成对！"

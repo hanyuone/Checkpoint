@@ -4,21 +4,20 @@
       "item": "checkpoint:checkpoint"
     },
     "title": {
-      "translate": "advancement.checkpoint.construct"
+      "translate": "advancement.construct"
     },
     "description": {
-      "translate": "advancement.checkpoint.construct.desc"
+      "translate": "advancement.construct.desc"
     }
   },
-  "parent": "minecraft:end/enter_end_gateway",
+  "parent": "minecraft:story/follow_ender_eye",
   "criteria": {
     "inventory": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "item": "checkpoint:checkpoint",
-            "count": 1
+            "item": "checkpoint:checkpoint"
           }
         ]
       }

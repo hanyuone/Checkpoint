@@ -1,16 +1,23 @@
 package com.hanyuone.checkpoint.capability.player;
 
+import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.network.SyncPlayerPacket;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class PlayerPairHandler implements IPlayerPair, INBTSerializable<CompoundNBT> {
+public class PlayerCapabilityHandler implements IPlayerCapability, INBTSerializable<CompoundNBT> {
     private BlockPos pos;
     private boolean hasPair;
 
-    public PlayerPairHandler() {
+    private int distanceWarped;
+
+    public PlayerCapabilityHandler() {
         this.pos = BlockPos.ZERO;
         this.hasPair = false;
+
+        this.distanceWarped = 0;
     }
 
     @Override
@@ -36,10 +43,22 @@ public class PlayerPairHandler implements IPlayerPair, INBTSerializable<Compound
     }
 
     @Override
+    public int getDistanceWarped() {
+        return this.distanceWarped;
+    }
+
+    @Override
+    public void setDistanceWarped(int newDist) {
+        this.distanceWarped = newDist;
+    }
+
+    @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT tag = new CompoundNBT();
         tag.putLong("block_pos", this.getBlockPos().toLong());
         tag.putBoolean("has_pair", this.hasPair());
+
+        tag.putInt("distance_warped", this.distanceWarped);
         return tag;
     }
 
@@ -48,5 +67,7 @@ public class PlayerPairHandler implements IPlayerPair, INBTSerializable<Compound
         if (tag.getBoolean("has_pair")) {
             this.setBlockPos(BlockPos.fromLong(tag.getLong("block_pos")));
         }
+
+        this.setDistanceWarped(tag.getInt("distance_warped"));
     }
 }

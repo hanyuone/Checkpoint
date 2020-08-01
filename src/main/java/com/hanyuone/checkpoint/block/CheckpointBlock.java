@@ -1,11 +1,12 @@
 package com.hanyuone.checkpoint.block;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
-import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
-import com.hanyuone.checkpoint.network.SyncPairPacket;
+import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -98,6 +99,10 @@ public class CheckpointBlock extends ContainerBlock {
         super.harvestBlock(worldIn, player, pos, Blocks.AIR.getDefaultState(), te, stack);
     }
 
+    private boolean isEmpty(UUID playerId) {
+        return playerId.getMostSignificantBits() == 0 && playerId.getLeastSignificantBits() == 0;
+    }
+
     @Override
     public void onBlockHarvested(World worldIn, @Nonnull BlockPos pos, BlockState state, @Nonnull PlayerEntity player) {
         CheckpointHalf half = state.get(HALF);
@@ -133,15 +138,15 @@ public class CheckpointBlock extends ContainerBlock {
 
             UUID playerId = handler.getPlayerId();
 
-            if (playerId != null) {
+            if (!isEmpty(playerId)) {
                 PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
 
                 // If the checkpoint was just made, delete the saved data on the player
                 // so the next checkpoint doesn't point to a dead BlockPos
-                playerFromEntity.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(playerHandler -> {
+                playerFromEntity.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(playerHandler -> {
                     if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
                         playerHandler.clearBlockPos();
-                        SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
+                        SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, playerHandler.getDistanceWarped());
                         CheckpointPacketHandler.INSTANCE.sendToServer(packet);
                     }
                 });
@@ -155,11 +160,13 @@ public class CheckpointBlock extends ContainerBlock {
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-        tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
-            entityHandler.setPlayerId(placer.getUniqueID());
-        });
+        if (tileEntity instanceof CheckpointTileEntity) {
+            tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
+                entityHandler.setPlayerId(placer.getUniqueID());
+            });
+        }
 
-        placer.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(placerHandler -> {
+        placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
             if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
                 BlockPos oldPos = placerHandler.getBlockPos();
                 TileEntity oldEntity = worldIn.getTileEntity(oldPos);
@@ -175,11 +182,11 @@ public class CheckpointBlock extends ContainerBlock {
                 }
 
                 placerHandler.clearBlockPos();
-                SyncPairPacket packet = new SyncPairPacket(false, BlockPos.ZERO);
+                SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, placerHandler.getDistanceWarped());
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             } else {
                 placerHandler.setBlockPos(pos);
-                SyncPairPacket packet = new SyncPairPacket(true, pos);
+                SyncPlayerPacket packet = new SyncPlayerPacket(true, pos, placerHandler.getDistanceWarped());
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             }
         });

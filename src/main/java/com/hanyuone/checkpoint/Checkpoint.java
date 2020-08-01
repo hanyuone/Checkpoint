@@ -1,15 +1,16 @@
 package com.hanyuone.checkpoint;
 
+import com.hanyuone.checkpoint.advancement.WarpDistanceTrigger;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairHandler;
-import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairStorage;
 import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
-import com.hanyuone.checkpoint.capability.player.IPlayerPair;
-import com.hanyuone.checkpoint.capability.player.PlayerPairHandler;
-import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
-import com.hanyuone.checkpoint.capability.player.PlayerPairStorage;
+import com.hanyuone.checkpoint.capability.player.IPlayerCapability;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityHandler;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityStorage;
 import com.hanyuone.checkpoint.client.ClientHandler;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.util.Advancements;
 import com.hanyuone.checkpoint.util.RegistryHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -50,7 +51,9 @@ public class Checkpoint {
 
     private void setup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(ICheckpointPair.class, new CheckpointPairStorage(), CheckpointPairHandler::new);
-        CapabilityManager.INSTANCE.register(IPlayerPair.class, new PlayerPairStorage(), PlayerPairHandler::new);
+        CapabilityManager.INSTANCE.register(IPlayerCapability.class, new PlayerCapabilityStorage(), PlayerCapabilityHandler::new);
+
+        Advancements.WARP_DISTANCE = (WarpDistanceTrigger) Advancements.register(new WarpDistanceTrigger());
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
@@ -60,7 +63,7 @@ public class Checkpoint {
     @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
-            event.addCapability(new ResourceLocation(Checkpoint.MOD_ID, "player_pair"), new PlayerPairProvider());
+            event.addCapability(new ResourceLocation(Checkpoint.MOD_ID, "player_pair"), new PlayerCapabilityProvider());
         }
     }
 

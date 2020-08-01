@@ -1,14 +1,19 @@
 package com.hanyuone.checkpoint.client;
 
+import com.hanyuone.checkpoint.advancement.WarpDistanceTrigger;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.network.WarpPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
+import com.hanyuone.checkpoint.util.Advancements;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -40,11 +45,17 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         this.warpButton = new Button(buttonLeft, buttonTop, 40, 20, warpButtonText, button -> {
             if (containerEntity instanceof CheckpointTileEntity) {
                 CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
+                PlayerEntity player = this.playerInventory.player;
 
                 // Assume hasPair() is always true, since the button is only active *if* hasPair() is true
                 containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
                     BlockPos pos = handler.getBlockPos();
                     WarpPacket packet = new WarpPacket(checkpointEntity.getPos(), pos);
+                    CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+                });
+
+                player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
+                    SyncPlayerPacket packet = new SyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), handler.getDistanceWarped());
                     CheckpointPacketHandler.INSTANCE.sendToServer(packet);
                 });
             }

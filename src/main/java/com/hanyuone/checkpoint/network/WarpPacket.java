@@ -1,6 +1,10 @@
 package com.hanyuone.checkpoint.network;
 
+import com.hanyuone.checkpoint.Checkpoint;
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
+import com.hanyuone.checkpoint.util.Advancements;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -42,8 +46,19 @@ public class WarpPacket {
                 checkpointEntity.spendEnderPearls();
             }
 
-            BlockPos position = message.destination;
-            player.connection.setPlayerLocation(position.getX(), position.getY(), position.getZ(), player.rotationYaw, player.rotationPitch);
+            BlockPos destination = message.destination;
+
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
+                int distance = (int) Math.sqrt(location.distanceSq(destination));
+                int newDistance = handler.getDistanceWarped() + distance;
+                Checkpoint.LOGGER.debug(distance);
+                Checkpoint.LOGGER.debug(newDistance);
+
+                handler.setDistanceWarped(newDistance);
+                Advancements.WARP_DISTANCE.trigger(player, newDistance);
+            });
+
+            player.connection.setPlayerLocation(destination.getX(), destination.getY(), destination.getZ(), player.rotationYaw, player.rotationPitch);
         });
 
         ctx.get().setPacketHandled(true);

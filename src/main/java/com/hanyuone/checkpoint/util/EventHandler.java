@@ -1,9 +1,9 @@
 package com.hanyuone.checkpoint.util;
 
 import com.hanyuone.checkpoint.Checkpoint;
-import com.hanyuone.checkpoint.capability.player.PlayerPairProvider;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
-import com.hanyuone.checkpoint.network.ClientSyncPairPacket;
+import com.hanyuone.checkpoint.network.ClientSyncPlayerPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,8 +16,8 @@ public class EventHandler {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
-            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+        player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
+            ClientSyncPlayerPacket packet = new ClientSyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), handler.getDistanceWarped());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
@@ -26,8 +26,8 @@ public class EventHandler {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
-            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+        player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
+            ClientSyncPlayerPacket packet = new ClientSyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), handler.getDistanceWarped());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
@@ -36,8 +36,8 @@ public class EventHandler {
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         PlayerEntity player = event.getPlayer();
 
-        player.getCapability(PlayerPairProvider.PLAYER_PAIR, null).ifPresent(handler -> {
-            ClientSyncPairPacket packet = new ClientSyncPairPacket(handler.hasPair(), handler.getBlockPos());
+        player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
+            ClientSyncPlayerPacket packet = new ClientSyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), handler.getDistanceWarped());
             CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
