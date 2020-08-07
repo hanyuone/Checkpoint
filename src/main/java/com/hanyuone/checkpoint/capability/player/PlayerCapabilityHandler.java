@@ -1,8 +1,5 @@
 package com.hanyuone.checkpoint.capability.player;
 
-import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
-import com.hanyuone.checkpoint.network.SyncPlayerPacket;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;

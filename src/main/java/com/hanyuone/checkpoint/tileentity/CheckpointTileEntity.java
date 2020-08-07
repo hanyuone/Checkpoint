@@ -2,7 +2,12 @@ package com.hanyuone.checkpoint.tileentity;
 
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairHandler;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
+import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
+import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
+import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
+import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.register.TileEntityRegister;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -10,6 +15,8 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -17,6 +24,7 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class CheckpointTileEntity extends TileEntity {
     private final ItemStackHandler pearlHandler = this.createPearlHandler();
@@ -125,5 +133,36 @@ public class CheckpointTileEntity extends TileEntity {
     public void spendEnderPearls() {
         this.pearlHandler.extractItem(0, this.calculateCost(), false);
         this.markDirty();
+    }
+
+    private boolean isEmpty(UUID playerId) {
+        return playerId.getMostSignificantBits() == 0 && playerId.getLeastSignificantBits() == 0;
+    }
+
+    // Disable the other half of the checkpoint
+    public void disablePair(World worldIn, BlockPos pos) {
+        // Disable the other half of the checkpoint pair
+        this.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+            if (handler.hasPair()) {
+                TileEntity otherEntity = worldIn.getTileEntity(handler.getBlockPos());
+                otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
+            }
+
+            UUID playerId = handler.getPlayerId();
+
+            if (!isEmpty(playerId)) {
+                PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
+
+                // If the checkpoint was just made, delete the saved data on the player
+                // so the next checkpoint doesn't point to a dead BlockPos
+                playerFromEntity.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(playerHandler -> {
+                    if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
+                        playerHandler.clearBlockPos();
+                        SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, playerHandler.getDistanceWarped());
+                        CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+                    }
+                });
+            }
+        });
     }
 }

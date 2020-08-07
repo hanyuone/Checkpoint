@@ -1,15 +1,14 @@
 package com.hanyuone.checkpoint.network;
 
-import com.hanyuone.checkpoint.Checkpoint;
-import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
-import com.hanyuone.checkpoint.util.Advancements;
+import com.hanyuone.checkpoint.advancement.Advancements;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.function.Supplier;
 
@@ -48,17 +47,19 @@ public class WarpPacket {
 
             BlockPos destination = message.destination;
 
+            player.connection.setPlayerLocation(destination.getX(), destination.getY(), destination.getZ(), player.rotationYaw, player.rotationPitch);
+
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
                 int distance = (int) Math.sqrt(location.distanceSq(destination));
                 int newDistance = handler.getDistanceWarped() + distance;
-                Checkpoint.LOGGER.debug(distance);
-                Checkpoint.LOGGER.debug(newDistance);
 
                 handler.setDistanceWarped(newDistance);
                 Advancements.WARP_DISTANCE.trigger(player, newDistance);
-            });
 
-            player.connection.setPlayerLocation(destination.getX(), destination.getY(), destination.getZ(), player.rotationYaw, player.rotationPitch);
+                // Sync player stats in server and client, should be done last
+                ClientSyncPlayerPacket packet = new ClientSyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), newDistance);
+                CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
+            });
         });
 
         ctx.get().setPacketHandled(true);

@@ -14,7 +14,7 @@ public class CheckpointPairProvider implements ICapabilitySerializable<INBT> {
     @CapabilityInject(ICheckpointPair.class)
     public static final Capability<ICheckpointPair> CHECKPOINT_PAIR = null;
 
-    private LazyOptional<ICheckpointPair> instance = LazyOptional.of(CHECKPOINT_PAIR::getDefaultInstance);
+    private final LazyOptional<ICheckpointPair> instance = LazyOptional.of(CHECKPOINT_PAIR::getDefaultInstance);
 
     @Nonnull
     @Override

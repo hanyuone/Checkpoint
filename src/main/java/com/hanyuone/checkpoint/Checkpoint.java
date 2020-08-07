@@ -10,7 +10,7 @@ import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityStorage;
 import com.hanyuone.checkpoint.client.ClientHandler;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
-import com.hanyuone.checkpoint.util.Advancements;
+import com.hanyuone.checkpoint.advancement.Advancements;
 import com.hanyuone.checkpoint.util.RegistryHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;

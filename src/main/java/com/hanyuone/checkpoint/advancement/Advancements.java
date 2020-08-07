@@ -1,6 +1,5 @@
-package com.hanyuone.checkpoint.util;
+package com.hanyuone.checkpoint.advancement;
 
-import com.hanyuone.checkpoint.advancement.WarpDistanceTrigger;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.advancements.ICriterionTrigger;

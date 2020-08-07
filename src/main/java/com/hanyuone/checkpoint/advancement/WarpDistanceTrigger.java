@@ -67,10 +67,10 @@ public class WarpDistanceTrigger implements ICriterionTrigger<WarpDistanceTrigge
 
     @Override
     public Instance deserializeInstance(JsonObject json, JsonDeserializationContext context) {
-        return new WarpDistanceTrigger.Instance();
+        return new Instance();
     }
 
-    public class Instance extends CriterionInstance {
+    public static class Instance extends CriterionInstance {
         public Instance() {
             super(WarpDistanceTrigger.ID);
         }
