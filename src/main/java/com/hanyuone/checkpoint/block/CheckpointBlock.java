@@ -6,7 +6,6 @@ import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
-import com.hanyuone.checkpoint.tileentity.UpperTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
@@ -18,9 +17,6 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -42,19 +38,10 @@ import javax.annotation.Nullable;
 
 // TODO: separate logic into two separate blocks!
 public class CheckpointBlock extends Block {
-    public static final EnumProperty<CheckpointHalf> HALF = EnumProperty.create("half", CheckpointHalf.class);
-
     public static final VoxelShape LOWER = VoxelShapes.or(
             makeCuboidShape(1, 0, 1, 15, 2, 15),
             makeCuboidShape(2, 2, 2, 14, 3, 14),
             makeCuboidShape(4, 3, 4, 12, 15, 12)
-    );
-
-    public static final VoxelShape UPPER = VoxelShapes.or(
-            makeCuboidShape(4, 0, 4, 12, 7, 12),
-            makeCuboidShape(2, 7, 2, 14, 9, 14),
-            makeCuboidShape(5, 9, 5, 11, 10, 11),
-            makeCuboidShape(6, 11, 6, 10, 15, 10)
     );
 
     public CheckpointBlock() {
@@ -62,9 +49,6 @@ public class CheckpointBlock extends Block {
                 .hardnessAndResistance(1.5f, 6)
                 .sound(SoundType.STONE)
                 .harvestTool(ToolType.PICKAXE));
-
-        this.setDefaultState(this.getStateContainer().getBaseState()
-                .with(HALF, CheckpointHalf.LOWER));
     }
 
     @Override
@@ -75,26 +59,17 @@ public class CheckpointBlock extends Block {
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        if (state.get(HALF) == CheckpointHalf.LOWER) {
-            return new CheckpointTileEntity();
-        } else {
-            return new UpperTileEntity();
-        }
+        return new CheckpointTileEntity();
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-        return state.get(HALF) == CheckpointHalf.LOWER ? LOWER : UPPER;
+        return LOWER;
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
-    }
-
-    @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
     }
 
     @Override
@@ -104,25 +79,21 @@ public class CheckpointBlock extends Block {
 
     @Override
     public void onBlockHarvested(World worldIn, @Nonnull BlockPos pos, BlockState state, @Nonnull PlayerEntity player) {
-        CheckpointHalf half = state.get(HALF);
-        // If you're currently mining the lower half, find the upper half,
-        // otherwise, find the lower half
-        BlockPos otherPos = half == CheckpointHalf.LOWER ? pos.up() : pos.down();
-        BlockState blockState = worldIn.getBlockState(otherPos);
+        BlockPos upperPos = pos.up();
+        BlockState upperState = worldIn.getBlockState(upperPos);
 
-        BlockPos checkpointPos = half == CheckpointHalf.LOWER ? pos : pos.down();
-        TileEntity checkpointEntity = worldIn.getTileEntity(checkpointPos);
+        TileEntity checkpointEntity = worldIn.getTileEntity(pos);
 
         // Checks if the other half of the checkpoint we want to destroy is
         // *actually* the other half
-        if (blockState.getBlock() == this && blockState.get(HALF) != half) {
-            worldIn.setBlockState(otherPos, Blocks.AIR.getDefaultState(), 35);
-            worldIn.playEvent(player, 2001, otherPos, Block.getStateId(blockState));
+        if (upperState.getBlock() instanceof UpperBlock) {
+            worldIn.setBlockState(upperPos, Blocks.AIR.getDefaultState(), 35);
+            worldIn.playEvent(player, 2001, upperPos, Block.getStateId(upperState));
             ItemStack itemStack = player.getHeldItemMainhand();
 
-            if (!worldIn.isRemote && !player.isCreative() && player.canHarvestBlock(blockState) && checkpointEntity instanceof CheckpointTileEntity) {
+            if (!worldIn.isRemote && !player.isCreative() && player.canHarvestBlock(upperState) && checkpointEntity instanceof CheckpointTileEntity) {
                 Block.spawnDrops(state, worldIn, pos, null, player, itemStack);
-                Block.spawnDrops(blockState, worldIn, otherPos, null, player, itemStack);
+                Block.spawnDrops(upperState, worldIn, upperPos, null, player, itemStack);
 
                 ItemStack enderPearls = new ItemStack(Items.ENDER_PEARL, ((CheckpointTileEntity) checkpointEntity).getEnderPearls());
                 worldIn.addEntity(new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), enderPearls));
@@ -139,7 +110,7 @@ public class CheckpointBlock extends Block {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        worldIn.setBlockState(pos.up(), state.with(HALF, CheckpointHalf.UPPER));
+        worldIn.setBlockState(pos.up(), new UpperBlock().getDefaultState());
 
         if (placer == null) return;
 
@@ -175,27 +146,13 @@ public class CheckpointBlock extends Block {
 
     @Override
     public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
-        if (state.get(HALF) == CheckpointHalf.LOWER) {
-            return true;
-        }
-
-        BlockState under = worldIn.getBlockState(pos.down());
-        return under.getBlock() == this && under.get(HALF) == CheckpointHalf.LOWER;
-    }
-
-    @Override
-    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type) {
-        return false;
+        return true;
     }
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (!worldIn.isRemote) {
-            // Redirecting all upper-half `CheckpointBlock` interactions to display the GUI
-            // of the lower half instead, since the lower half is what stores all the relevant
-            // information
-            BlockPos lowerPos = state.get(HALF) == CheckpointHalf.UPPER ? pos.down() : pos;
-            TileEntity tileEntity = worldIn.getTileEntity(lowerPos);
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
 
             if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
@@ -206,7 +163,7 @@ public class CheckpointBlock extends Block {
 
                     @Override
                     public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                        return new CheckpointContainer(i, worldIn, lowerPos, playerInventory);
+                        return new CheckpointContainer(i, worldIn, pos, playerInventory);
                     }
                 };
                 

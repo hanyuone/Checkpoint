@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "checkpoint:block/checkpoint_upper" }
+  }
+}

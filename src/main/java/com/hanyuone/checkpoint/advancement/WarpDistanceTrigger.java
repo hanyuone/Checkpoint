@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import com.hanyuone.checkpoint.Checkpoint;
 import net.minecraft.advancements.ICriterionTrigger;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.advancements.criterion.CriterionInstance;
@@ -57,8 +56,6 @@ public class WarpDistanceTrigger implements ICriterionTrigger<WarpDistanceTrigge
 
     public void trigger(ServerPlayerEntity player, int distance) {
         Listeners customTrigger$listeners = this.listeners.get(player.getAdvancements());
-        Checkpoint.LOGGER.debug(customTrigger$listeners);
-        Checkpoint.LOGGER.debug(distance);
 
         if (customTrigger$listeners != null) {
             customTrigger$listeners.trigger(distance);
@@ -76,7 +73,6 @@ public class WarpDistanceTrigger implements ICriterionTrigger<WarpDistanceTrigge
         }
 
         public boolean test(int distanceWarped) {
-            Checkpoint.LOGGER.debug(distanceWarped);
             return distanceWarped >= 1000;
         }
     }
