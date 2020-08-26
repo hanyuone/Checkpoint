@@ -74,6 +74,13 @@ public class UpperBlock extends Block {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+        BlockState lowerState = worldIn.getBlockState(pos.down());
+        Block lowerBlock = lowerState.getBlock();
+
+        if (lowerBlock instanceof CheckpointBlock) {
+            return lowerBlock.onBlockActivated(lowerState, worldIn, pos.down(), player, handIn, hit);
+        }
+
         return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
     }
 }

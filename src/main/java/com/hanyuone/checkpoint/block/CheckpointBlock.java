@@ -5,6 +5,7 @@ import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPlayerPacket;
+import com.hanyuone.checkpoint.register.BlockRegister;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -110,7 +111,7 @@ public class CheckpointBlock extends Block {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        worldIn.setBlockState(pos.up(), new UpperBlock().getDefaultState());
+        worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState());
 
         if (placer == null) return;
 
