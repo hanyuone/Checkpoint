@@ -1,6 +1,5 @@
 {
   "variants": {
-    "half=lower": {"model": "checkpoint:block/checkpoint_lower"},
-    "half=upper": {"model": "checkpoint:block/checkpoint_upper"}
+    "": { "model": "checkpoint:block/checkpoint_lower" }
   }
 }

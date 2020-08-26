@@ -24,7 +24,7 @@ public class TileEntityRegister {
     public static final RegistryObject<TileEntityType<UpperTileEntity>> UPPER_TILE_ENTITY = register(
             "checkpoint_upper",
             UpperTileEntity::new,
-            () -> new Block[] {BlockRegister.CHECKPOINT.get()}
+            () -> new Block[] {BlockRegister.CHECKPOINT_UPPER.get()}
     );
 
     private static <T extends TileEntity> RegistryObject<TileEntityType<T>> register(String id, Supplier<T> factoryIn, Supplier<Block[]> validBlocksSupplier) {
