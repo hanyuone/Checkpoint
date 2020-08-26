@@ -141,28 +141,28 @@ public class CheckpointTileEntity extends TileEntity {
 
     // Disable the other half of the checkpoint
     public void disablePair(World worldIn, BlockPos pos) {
-        // Disable the other half of the checkpoint pair
-        this.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-            if (handler.hasPair()) {
-                TileEntity otherEntity = worldIn.getTileEntity(handler.getBlockPos());
+        if (this.pairHandler.hasPair()) {
+            TileEntity otherEntity = worldIn.getTileEntity(this.pairHandler.getBlockPos());
+
+            if (otherEntity instanceof CheckpointTileEntity) {
                 otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
             }
+        }
 
-            UUID playerId = handler.getPlayerId();
+        UUID playerId = this.pairHandler.getPlayerId();
 
-            if (!isEmpty(playerId)) {
-                PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
+        if (!isEmpty(playerId)) {
+            PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
 
-                // If the checkpoint was just made, delete the saved data on the player
-                // so the next checkpoint doesn't point to a dead BlockPos
-                playerFromEntity.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(playerHandler -> {
-                    if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
-                        playerHandler.clearBlockPos();
-                        SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, playerHandler.getDistanceWarped());
-                        CheckpointPacketHandler.INSTANCE.sendToServer(packet);
-                    }
-                });
-            }
-        });
+            // If the checkpoint was just made, delete the saved data on the player
+            // so the next checkpoint doesn't point to a dead BlockPos
+            playerFromEntity.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(playerHandler -> {
+                if (playerHandler.hasPair() && playerHandler.getBlockPos().equals(pos)) {
+                    playerHandler.clearBlockPos();
+                    SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, playerHandler.getDistanceWarped());
+                    CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+                }
+            });
+        }
     }
 }
