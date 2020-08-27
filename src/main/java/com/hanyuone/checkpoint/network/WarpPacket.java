@@ -47,7 +47,8 @@ public class WarpPacket {
 
             BlockPos destination = message.destination;
 
-            player.connection.setPlayerLocation(destination.getX(), destination.getY(), destination.getZ(), player.rotationYaw, player.rotationPitch);
+            // Adjust to make the player stand in the centre of the block
+            player.connection.setPlayerLocation(destination.getX() + 0.5f, destination.getY(), destination.getZ() + 0.5f, player.rotationYaw, player.rotationPitch);
 
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
                 int distance = (int) Math.sqrt(location.distanceSq(destination));

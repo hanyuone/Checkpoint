@@ -7,6 +7,8 @@ import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.register.TileEntityRegister;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -82,12 +84,16 @@ public class CheckpointTileEntity extends TileEntity {
     @Nullable
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
-        return super.getUpdatePacket();
+        CompoundNBT nbtTagCompound = new CompoundNBT();
+        this.write(nbtTagCompound);
+        // Arbitrary number, only used for vanilla TileEntities
+        int tileEntityType = 42;
+        return new SUpdateTileEntityPacket(this.pos, tileEntityType, nbtTagCompound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-
+        this.read(pkt.getNbtCompound());
     }
 
     @Override
@@ -135,23 +141,25 @@ public class CheckpointTileEntity extends TileEntity {
         this.markDirty();
     }
 
-    private boolean isEmpty(UUID playerId) {
+    // Disable the other half of the checkpoint
+
+    private boolean isUuidEmpty(UUID playerId) {
         return playerId.getMostSignificantBits() == 0 && playerId.getLeastSignificantBits() == 0;
     }
 
-    // Disable the other half of the checkpoint
     public void disablePair(World worldIn, BlockPos pos) {
         if (this.pairHandler.hasPair()) {
             TileEntity otherEntity = worldIn.getTileEntity(this.pairHandler.getBlockPos());
 
             if (otherEntity instanceof CheckpointTileEntity) {
                 otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
+                otherEntity.markDirty();
             }
         }
 
         UUID playerId = this.pairHandler.getPlayerId();
 
-        if (!isEmpty(playerId)) {
+        if (!isUuidEmpty(playerId)) {
             PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
 
             // If the checkpoint was just made, delete the saved data on the player
@@ -164,5 +172,28 @@ public class CheckpointTileEntity extends TileEntity {
                 }
             });
         }
+    }
+
+    // Finds a suitable block to spawn on
+
+    // Assumes there is a suitable pair
+    @Nullable
+    public BlockPos suitablePos() {
+        BlockPos currentPos = this.pairHandler.getBlockPos();
+        BlockPos[] neighbours = {currentPos.north(), currentPos.east(), currentPos.south(), currentPos.west()};
+
+        for (BlockPos neighbour: neighbours) {
+            BlockState currentState = this.world.getBlockState(neighbour);
+            Block currentBlock = currentState.getBlock();
+
+            BlockState belowState = this.world.getBlockState(neighbour.down());
+            Block belowBlock = belowState.getBlock();
+
+            if (currentBlock.isAir(currentState, this.world, neighbour) && belowBlock.isSolid(belowState)) {
+                return neighbour;
+            }
+        }
+
+        return null;
     }
 }

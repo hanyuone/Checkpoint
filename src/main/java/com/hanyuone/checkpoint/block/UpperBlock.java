@@ -57,13 +57,16 @@ public class UpperBlock extends Block {
 
     @Override
     public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
-        BlockState lowerState = worldIn.getBlockState(pos.down());
+        BlockPos lowerPos = pos.down();
+        BlockState lowerState = worldIn.getBlockState(lowerPos);
+        Block lowerBlock = lowerState.getBlock();
 
-        if (lowerState.getBlock() instanceof CheckpointBlock) {
-            worldIn.destroyBlock(pos.down(), false);
+        if (lowerBlock instanceof CheckpointBlock) {
+            lowerBlock.onBlockHarvested(worldIn, lowerPos, lowerState, player);
+            worldIn.setBlockState(lowerPos, Blocks.AIR.getDefaultState(), 35);
+        } else {
+            super.onBlockHarvested(worldIn, pos, state, player);
         }
-
-        super.onBlockHarvested(worldIn, pos, state, player);
     }
 
     @Override

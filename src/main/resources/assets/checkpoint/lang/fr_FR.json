@@ -10,7 +10,8 @@
   "advancement.distance.desc": "Voyager 1000m avec les points de contrôle",
 
   "gui.checkpoint.cost": "Coûte: %d",
-  "gui.checkpoint.not_paired": "Ne pas être couplé !",
+  "gui.checkpoint.not_paired": "Non couplé !",
+  "gui.checkpoint.obstructed": "Obstrué !",
   "gui.checkpoint.warp": "Téléporter",
 
   "tooltip.checkpoint.pair_location": "Sera couplé avec %s",

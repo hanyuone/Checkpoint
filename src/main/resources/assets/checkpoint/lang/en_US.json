@@ -11,6 +11,7 @@
 
   "gui.checkpoint.cost": "Cost: %d",
   "gui.checkpoint.not_paired": "Not paired!",
+  "gui.checkpoint.obstructed": "Obstructed!",
   "gui.checkpoint.warp": "Warp",
 
   "tooltip.checkpoint.pair_location": "Will be paired to %s",

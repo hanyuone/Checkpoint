@@ -85,6 +85,10 @@ public class CheckpointBlock extends Block {
 
         TileEntity checkpointEntity = worldIn.getTileEntity(pos);
 
+        if (checkpointEntity instanceof CheckpointTileEntity) {
+            ((CheckpointTileEntity) checkpointEntity).disablePair(worldIn, pos);
+        }
+
         // Checks if the other half of the checkpoint we want to destroy is
         // *actually* the other half
         if (upperState.getBlock() instanceof UpperBlock) {
@@ -101,10 +105,6 @@ public class CheckpointBlock extends Block {
             }
         }
 
-        if (checkpointEntity instanceof CheckpointTileEntity) {
-            ((CheckpointTileEntity) checkpointEntity).disablePair(worldIn, pos);
-        }
-
         super.onBlockHarvested(worldIn, pos, state, player);
     }
 
@@ -117,6 +117,7 @@ public class CheckpointBlock extends Block {
 
         if (tileEntity instanceof CheckpointTileEntity) {
             tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setPlayerId(placer.getUniqueID()));
+            tileEntity.markDirty();
         }
 
         placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
@@ -128,10 +129,14 @@ public class CheckpointBlock extends Block {
                     tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
                         entityHandler.setBlockPos(oldPos);
                     });
+                    tileEntity.markDirty();
+                    worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
 
                     oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> {
                         oldHandler.setBlockPos(pos);
                     });
+                    oldEntity.markDirty();
+                    worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
                 }
 
                 placerHandler.clearBlockPos();
