@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " b ",
+    " eb",
+    "s  "
+  ],
+  "key": {
+    "e": {"item": "minecraft:ender_eye"},
+    "s": {"item": "minecraft:stick"},
+    "b": {"item": "minecraft:blaze_rod"}
+  },
+  "result": {
+    "item": "checkpoint:pairer",
+    "count": 1
+  }
+}

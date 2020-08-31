@@ -1,6 +1,7 @@
 {
   "block.checkpoint.checkpoint": "Checkpoint",
   "container.checkpoint.checkpoint": "Checkpoint",
+  "item.checkpoint.pairer": "Pairer",
 
   "itemGroup.checkpointTab": "Checkpoint",
 
@@ -13,6 +14,9 @@
   "gui.checkpoint.not_paired": "Not paired!",
   "gui.checkpoint.obstructed": "Obstructed!",
   "gui.checkpoint.warp": "Warp",
+
+  "toast.too_far": "Cannot pair!",
+  "toast.too_far.desc": "Out of range",
 
   "tooltip.checkpoint.pair_location": "Will be paired to %s",
   "tooltip.checkpoint.not_paired": "Not paired!"

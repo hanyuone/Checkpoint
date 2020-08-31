@@ -3,6 +3,7 @@ package com.hanyuone.checkpoint.block;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
+import com.hanyuone.checkpoint.item.PairerItem;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.register.BlockRegister;
@@ -108,18 +109,7 @@ public class CheckpointBlock extends Block {
         super.onBlockHarvested(worldIn, pos, state, player);
     }
 
-    @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
-        TileEntity tileEntity = worldIn.getTileEntity(pos);
-        worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState());
-
-        if (placer == null) return;
-
-        if (tileEntity instanceof CheckpointTileEntity) {
-            tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setPlayerId(placer.getUniqueID()));
-            tileEntity.markDirty();
-        }
-
+    private void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, TileEntity tileEntity) {
         placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
             if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
                 BlockPos oldPos = placerHandler.getBlockPos();
@@ -151,6 +141,21 @@ public class CheckpointBlock extends Block {
     }
 
     @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState());
+
+        if (placer == null) return;
+
+        if (tileEntity instanceof CheckpointTileEntity) {
+            tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setPlayerId(placer.getUniqueID()));
+            tileEntity.markDirty();
+        }
+
+        setPlayerPair(worldIn, pos, placer, tileEntity);
+    }
+
+    @Override
     public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
         return true;
     }
@@ -159,8 +164,16 @@ public class CheckpointBlock extends Block {
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (!worldIn.isRemote) {
             TileEntity tileEntity = worldIn.getTileEntity(pos);
+            ItemStack interactedItem = player.getHeldItem(handIn);
 
-            if (tileEntity instanceof CheckpointTileEntity) {
+            if (tileEntity instanceof CheckpointTileEntity && interactedItem.getItem() instanceof PairerItem) {
+                tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+                    if (handler.hasPair()) return;
+
+                    interactedItem.damageItem(1, player, entity -> {});
+                    setPlayerPair(worldIn, pos, player, tileEntity);
+                });
+            } else if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
                     @Override
                     public ITextComponent getDisplayName() {
