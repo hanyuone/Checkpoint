@@ -10,6 +10,9 @@ import com.hanyuone.checkpoint.register.BlockRegister;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.toasts.SystemToast;
+import net.minecraft.client.gui.toasts.ToastGui;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -168,10 +171,17 @@ public class CheckpointBlock extends Block {
 
             if (tileEntity instanceof CheckpointTileEntity && interactedItem.getItem() instanceof PairerItem) {
                 tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                    if (handler.hasPair()) return;
+                    if (handler.hasPair()) {
+                        TranslationTextComponent title = new TranslationTextComponent("toast.already_paired");
+                        TranslationTextComponent subtitle = new TranslationTextComponent("toast.already_paired.desc");
+                        SystemToast toast = new SystemToast(SystemToast.Type.TUTORIAL_HINT, title, subtitle);
 
-                    interactedItem.damageItem(1, player, entity -> {});
-                    setPlayerPair(worldIn, pos, player, tileEntity);
+                        ToastGui gui = Minecraft.getInstance().getToastGui();
+                        gui.add(toast);
+                    } else {
+                        interactedItem.damageItem(1, player, entity -> {});
+                        setPlayerPair(worldIn, pos, player, tileEntity);
+                    }
                 });
             } else if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {

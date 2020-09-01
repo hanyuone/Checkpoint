@@ -15,6 +15,8 @@
   "gui.checkpoint.obstructed": "Obstructed!",
   "gui.checkpoint.warp": "Warp",
 
+  "toast.already_paired": "Cannot fix!",
+  "toast.already_paired.desc": "Already paired",
   "toast.too_far": "Cannot pair!",
   "toast.too_far.desc": "Out of range",
 
