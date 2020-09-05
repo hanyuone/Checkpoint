@@ -47,27 +47,13 @@
         "up": {"uv": [12, 5.5, 10.5, 4], "texture": "#0"},
         "down": {"uv": [13.5, 4, 12, 5.5], "texture": "#0"}
       }
-    },
-    {
-      "name": "top_eye",
-      "from": [6, 11, 6],
-      "to": [10, 15, 10],
-      "rotation": {"angle": 0, "axis": "y", "origin": [8, 29, 8]},
-      "faces": {
-        "north": {"uv": [9, 8.5, 10, 9.5], "texture": "#0"},
-        "east": {"uv": [8, 8.5, 9, 9.5], "texture": "#0"},
-        "south": {"uv": [11, 8.5, 12, 9.5], "texture": "#0"},
-        "west": {"uv": [10, 8.5, 11, 9.5], "texture": "#0"},
-        "up": {"uv": [10, 8.5, 9, 7.5], "texture": "#0"},
-        "down": {"uv": [11, 7.5, 10, 8.5], "texture": "#0"}
-      }
     }
   ],
   "groups": [
     {
       "name": "top",
       "origin": [0, 0, 0],
-      "children": [0, 1, 2, 3]
+      "children": [0, 1, 2]
     }
   ]
 }

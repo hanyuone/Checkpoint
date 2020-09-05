@@ -23,8 +23,7 @@ public class UpperBlock extends Block {
     public static final VoxelShape UPPER = VoxelShapes.or(
             makeCuboidShape(4, 0, 4, 12, 7, 12),
             makeCuboidShape(2, 7, 2, 14, 9, 14),
-            makeCuboidShape(5, 9, 5, 11, 10, 11),
-            makeCuboidShape(6, 11, 6, 10, 15, 10)
+            makeCuboidShape(5, 9, 5, 11, 10, 11)
     );
 
     public UpperBlock() {

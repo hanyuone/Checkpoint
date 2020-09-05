@@ -1,4 +1,4 @@
-package com.hanyuone.checkpoint.client;
+package com.hanyuone.checkpoint.client.gui;
 
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
