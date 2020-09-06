@@ -3,9 +3,13 @@ package com.hanyuone.checkpoint.network;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import com.hanyuone.checkpoint.advancement.Advancements;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -37,6 +41,7 @@ public class WarpPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity player = ctx.get().getSender();
 
+            // Spend ender pearls on the checkpoint you're warping from
             BlockPos location = message.entityLocation;
             TileEntity entity = player.getServerWorld().getTileEntity(location);
 
@@ -61,6 +66,22 @@ public class WarpPacket {
                 ClientSyncPlayerPacket packet = new ClientSyncPlayerPacket(handler.hasPair(), handler.getBlockPos(), newDistance);
                 CheckpointPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
             });
+
+            // Add particles and sounds when the player is warped
+            Minecraft mc = Minecraft.getInstance();
+            mc.world.playSound(player, destination, SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.AMBIENT, 1f, 1f);
+
+            for (int i = 0; i < 128; i++) {
+                mc.world.addParticle(
+                        ParticleTypes.PORTAL,
+                        (destination.getX() + 0.5) + (mc.world.rand.nextDouble() - 0.5) * 3,
+                        destination.getY() + (mc.world.rand.nextDouble() - 0.5) * 3,
+                        (destination.getZ() + 0.5) + (mc.world.rand.nextDouble() - 0.5) * 3,
+                        (mc.world.rand.nextDouble() - 0.5) * 2,
+                        -mc.world.rand.nextDouble(),
+                        (mc.world.rand.nextDouble() - 0.5) * 2
+                );
+            }
         });
 
         ctx.get().setPacketHandled(true);

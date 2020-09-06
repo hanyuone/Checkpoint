@@ -1,9 +1,11 @@
 package com.hanyuone.checkpoint.block;
 
+import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.tileentity.UpperTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -18,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
+import java.util.Random;
 
 public class UpperBlock extends Block {
     public static final VoxelShape UPPER = VoxelShapes.or(
@@ -84,5 +87,31 @@ public class UpperBlock extends Block {
         }
 
         return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+    }
+
+    @Override
+    public void animateTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand) {
+        super.animateTick(stateIn, worldIn, pos, rand);
+
+        UpperTileEntity tileEntity = (UpperTileEntity) worldIn.getTileEntity(pos);
+
+        tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+            if (!handler.hasPair()) return;
+
+            // Copied from nether portal block
+            for (int i = 0; i < 4; ++i) {
+                int j = rand.nextInt(2) * 2 - 1;
+
+                double x = (double)pos.getX() + 0.5D + 0.25D * (double)j;
+                double y = (double)pos.getY() + (double)rand.nextFloat();
+                double z = (double)pos.getZ() + (double)rand.nextFloat();
+
+                double xSpeed = rand.nextFloat() * 2.0F * (float)j;
+                double ySpeed = ((double)rand.nextFloat() - 0.5D) * 0.5D;
+                double zSpeed = ((double)rand.nextFloat() - 0.5D) * 0.5D;
+
+                worldIn.addParticle(ParticleTypes.ENCHANT, x, y, z, xSpeed, ySpeed, zSpeed);
+            }
+        });
     }
 }
