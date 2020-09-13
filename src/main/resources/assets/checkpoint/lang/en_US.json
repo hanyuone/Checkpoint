@@ -15,10 +15,8 @@
   "gui.checkpoint.obstructed": "Obstructed!",
   "gui.checkpoint.warp": "Warp",
 
-  "toast.already_paired": "Cannot fix!",
-  "toast.already_paired.desc": "Already paired",
-  "toast.too_far": "Cannot pair!",
-  "toast.too_far.desc": "Out of range",
+  "action.already_paired": "This checkpoint is already paired!",
+  "action.too_far": "Cannot pair, out of range!",
 
   "tooltip.checkpoint.pair_location": "Will be paired to %s",
   "tooltip.checkpoint.not_paired": "Not paired!"

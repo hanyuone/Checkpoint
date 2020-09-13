@@ -10,9 +10,6 @@ import com.hanyuone.checkpoint.register.BlockRegister;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.SystemToast;
-import net.minecraft.client.gui.toasts.ToastGui;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,6 +28,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
@@ -172,12 +170,9 @@ public class CheckpointBlock extends Block {
             if (tileEntity instanceof CheckpointTileEntity && interactedItem.getItem() instanceof PairerItem) {
                 tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
                     if (handler.hasPair()) {
-                        TranslationTextComponent title = new TranslationTextComponent("toast.already_paired");
-                        TranslationTextComponent subtitle = new TranslationTextComponent("toast.already_paired.desc");
-                        SystemToast toast = new SystemToast(SystemToast.Type.TUTORIAL_HINT, title, subtitle);
-
-                        ToastGui gui = Minecraft.getInstance().getToastGui();
-                        gui.add(toast);
+                        TranslationTextComponent title = new TranslationTextComponent("action.already_paired");
+                        title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
+                        player.sendStatusMessage(title, true);
                     } else {
                         interactedItem.damageItem(1, player, entity -> {});
                         setPlayerPair(worldIn, pos, player, tileEntity);

@@ -17,8 +17,8 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import java.util.function.Supplier;
 
 public class WarpPacket {
-    private BlockPos entityLocation;
-    private BlockPos destination;
+    private final BlockPos entityLocation;
+    private final BlockPos destination;
 
     public WarpPacket(BlockPos entityLocation, BlockPos destination) {
         this.entityLocation = entityLocation;

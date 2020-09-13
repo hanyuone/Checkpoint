@@ -102,11 +102,11 @@ public class UpperBlock extends Block {
             for (int i = 0; i < 4; ++i) {
                 int j = rand.nextInt(2) * 2 - 1;
 
-                double x = (double)pos.getX() + 0.5D + 0.25D * (double)j;
+                double x = (double)pos.getX() + (double)rand.nextFloat();
                 double y = (double)pos.getY() + (double)rand.nextFloat();
                 double z = (double)pos.getZ() + (double)rand.nextFloat();
 
-                double xSpeed = rand.nextFloat() * 2.0F * (float)j;
+                double xSpeed = ((double)rand.nextFloat() - 0.5D) * 0.5D;
                 double ySpeed = ((double)rand.nextFloat() - 0.5D) * 0.5D;
                 double zSpeed = ((double)rand.nextFloat() - 0.5D) * 0.5D;
 
