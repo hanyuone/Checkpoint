@@ -57,8 +57,6 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
                         BlockPos pos = this.suitablePos;
                         WarpPacket packet = new WarpPacket(checkpointEntity.getPos(), pos);
                         CheckpointPacketHandler.INSTANCE.sendToServer(packet);
-                    } else {
-                        this.minecraft.player.closeScreen();
                     }
                 });
             }

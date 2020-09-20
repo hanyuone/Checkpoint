@@ -55,6 +55,7 @@ public class WarpPacket {
             // Adjust to make the player stand in the centre of the block
             player.connection.setPlayerLocation(destination.getX() + 0.5f, destination.getY(), destination.getZ() + 0.5f, player.rotationYaw, player.rotationPitch);
 
+            // Update player achievements/stats
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
                 int distance = (int) Math.sqrt(location.distanceSq(destination));
                 int newDistance = handler.getDistanceWarped() + distance;

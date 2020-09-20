@@ -11,11 +11,13 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
     private boolean hasPair;
     private UUID playerId;
 
+    private static final UUID EMPTY_UUID = new UUID(0, 0);
+
     public CheckpointPairHandler() {
         this.pos = BlockPos.ZERO;
         this.hasPair = false;
         // Default value, since the upper half can't be null (triggering NPE)
-        this.playerId = new UUID(0, 0);
+        this.playerId = EMPTY_UUID;
     }
 
     @Override
@@ -46,8 +48,17 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
     }
 
     @Override
+    public void clearPlayerId() {
+        this.playerId = EMPTY_UUID;
+    }
+
+    @Override
     public boolean hasPair() {
         return this.hasPair;
+    }
+
+    public boolean isIdEmpty() {
+        return this.playerId.getMostSignificantBits() == 0 && this.playerId.getLeastSignificantBits() == 0;
     }
 
     @Override

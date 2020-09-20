@@ -11,6 +11,8 @@ public interface ICheckpointPair {
 
     UUID getPlayerId();
     void setPlayerId(UUID id);
+    void clearPlayerId();
 
     boolean hasPair();
+    boolean isIdEmpty();
 }

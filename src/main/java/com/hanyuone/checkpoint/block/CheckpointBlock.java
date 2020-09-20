@@ -39,7 +39,6 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-// TODO: separate logic into two separate blocks!
 public class CheckpointBlock extends Block {
     public static final VoxelShape LOWER = VoxelShapes.or(
             makeCuboidShape(1, 0, 1, 15, 2, 15),
@@ -110,12 +109,23 @@ public class CheckpointBlock extends Block {
         super.onBlockHarvested(worldIn, pos, state, player);
     }
 
+    // Triggers when a checkpoint is placed down or when a pairer interacts with
+    // an existing checkpoint - updates the player's pairing according to the following
+    // rule:
+    // - if the player has not established a pair yet (i.e. they have not placed down
+    //   their first checkpoint), that player's capability is updated with the position
+    //   of the first checkpoint
+    // - if the player already placed down half of the pair, that player's checkpoint position
+    //   is cleared and the first checkpoint is updated
     private void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, TileEntity tileEntity) {
         placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
+            // If the player already has an existing half stored as a capability:
             if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
                 BlockPos oldPos = placerHandler.getBlockPos();
                 TileEntity oldEntity = worldIn.getTileEntity(oldPos);
 
+                // Link both halves of the checkpoint pair together
+                // (also notify the world of changes so client will render GUI properly)
                 if (tileEntity instanceof CheckpointTileEntity && oldEntity instanceof CheckpointTileEntity) {
                     tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
                         entityHandler.setBlockPos(oldPos);
@@ -130,10 +140,12 @@ public class CheckpointBlock extends Block {
                     worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
                 }
 
+                // Clear the player capability
                 placerHandler.clearBlockPos();
                 SyncPlayerPacket packet = new SyncPlayerPacket(false, BlockPos.ZERO, placerHandler.getDistanceWarped());
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             } else {
+                // Add to the player capability
                 placerHandler.setBlockPos(pos);
                 SyncPlayerPacket packet = new SyncPlayerPacket(true, pos, placerHandler.getDistanceWarped());
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
@@ -153,12 +165,33 @@ public class CheckpointBlock extends Block {
             tileEntity.markDirty();
         }
 
-        setPlayerPair(worldIn, pos, placer, tileEntity);
+        this.setPlayerPair(worldIn, pos, placer, tileEntity);
     }
 
     @Override
     public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
         return true;
+    }
+
+    // Triggers whenever the player is using a pairer on a checkpoint
+    // (i.e. right-clicking a checkpoint with a pairer)
+    private void usePairer(World worldIn, BlockPos pos, PlayerEntity player, CheckpointTileEntity tileEntity, ItemStack interactedItem) {
+        tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+            if (handler.hasPair()) {
+                // The checkpoint you're targeting is already paired
+                TranslationTextComponent title = new TranslationTextComponent("action.already_paired");
+                title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
+                player.sendStatusMessage(title, true);
+            } else if (!handler.isIdEmpty() && player.getUniqueID() != handler.getPlayerId()) {
+                // The broken half is already in "pairing mode"
+                TranslationTextComponent title = new TranslationTextComponent("action.pairing_mode");
+                title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
+                player.sendStatusMessage(title, true);
+            } else {
+                interactedItem.damageItem(1, player, entity -> {});
+                this.setPlayerPair(worldIn, pos, player, tileEntity);
+            }
+        });
     }
 
     @Override
@@ -168,16 +201,7 @@ public class CheckpointBlock extends Block {
             ItemStack interactedItem = player.getHeldItem(handIn);
 
             if (tileEntity instanceof CheckpointTileEntity && interactedItem.getItem() instanceof PairerItem) {
-                tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                    if (handler.hasPair()) {
-                        TranslationTextComponent title = new TranslationTextComponent("action.already_paired");
-                        title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
-                        player.sendStatusMessage(title, true);
-                    } else {
-                        interactedItem.damageItem(1, player, entity -> {});
-                        setPlayerPair(worldIn, pos, player, tileEntity);
-                    }
-                });
+                this.usePairer(worldIn, pos, player, (CheckpointTileEntity) tileEntity, interactedItem);
             } else if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
                     @Override

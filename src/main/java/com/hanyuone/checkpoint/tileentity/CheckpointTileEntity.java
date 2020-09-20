@@ -142,11 +142,6 @@ public class CheckpointTileEntity extends TileEntity {
     }
 
     // Disable the other half of the checkpoint
-
-    private boolean isUuidEmpty(UUID playerId) {
-        return playerId.getMostSignificantBits() == 0 && playerId.getLeastSignificantBits() == 0;
-    }
-
     public void disablePair(World worldIn, BlockPos pos) {
         if (this.pairHandler.hasPair()) {
             TileEntity otherEntity = worldIn.getTileEntity(this.pairHandler.getBlockPos());
@@ -157,10 +152,8 @@ public class CheckpointTileEntity extends TileEntity {
             }
         }
 
-        UUID playerId = this.pairHandler.getPlayerId();
-
-        if (!isUuidEmpty(playerId)) {
-            PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(playerId);
+        if (!this.pairHandler.isIdEmpty()) {
+            PlayerEntity playerFromEntity = worldIn.getPlayerByUuid(this.pairHandler.getPlayerId());
 
             // If the checkpoint was just made, delete the saved data on the player
             // so the next checkpoint doesn't point to a dead BlockPos
@@ -171,6 +164,8 @@ public class CheckpointTileEntity extends TileEntity {
                     CheckpointPacketHandler.INSTANCE.sendToServer(packet);
                 }
             });
+
+            this.pairHandler.clearPlayerId();
         }
     }
 
