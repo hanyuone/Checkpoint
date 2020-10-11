@@ -21,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -127,15 +128,11 @@ public class CheckpointBlock extends Block {
                 // Link both halves of the checkpoint pair together
                 // (also notify the world of changes so client will render GUI properly)
                 if (tileEntity instanceof CheckpointTileEntity && oldEntity instanceof CheckpointTileEntity) {
-                    tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> {
-                        entityHandler.setBlockPos(oldPos);
-                    });
+                    tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setBlockPos(oldPos));
                     tileEntity.markDirty();
                     worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
 
-                    oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> {
-                        oldHandler.setBlockPos(pos);
-                    });
+                    oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> oldHandler.setBlockPos(pos));
                     oldEntity.markDirty();
                     worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
                 }
@@ -156,7 +153,7 @@ public class CheckpointBlock extends Block {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState());
+        worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState(), 3);
 
         if (placer == null) return;
 
@@ -170,7 +167,13 @@ public class CheckpointBlock extends Block {
 
     @Override
     public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
-        return true;
+        BlockPos under = pos.down();
+        BlockState underState = worldIn.getBlockState(under);
+
+        BlockPos above = pos.up();
+        BlockState aboveState = worldIn.getBlockState(above);
+
+        return underState.isSolidSide(worldIn, under, Direction.UP) && !aboveState.isSolid();
     }
 
     // Triggers whenever the player is using a pairer on a checkpoint
