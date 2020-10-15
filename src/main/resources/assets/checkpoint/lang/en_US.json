@@ -17,6 +17,7 @@
 
   "action.already_paired": "This checkpoint is already paired!",
   "action.pairing_mode": "This checkpoint is being paired by someone else!",
+  "action.pairing_success": "Successfully paired!",
   "action.too_far": "Cannot pair, out of range!",
 
   "tooltip.checkpoint.pair_location": "Will be paired to %s",

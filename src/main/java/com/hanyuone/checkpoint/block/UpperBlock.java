@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 public class UpperBlock extends Block {
-    public static final VoxelShape UPPER = VoxelShapes.or(
+    private static final VoxelShape UPPER = VoxelShapes.or(
             makeCuboidShape(4, 0, 4, 12, 7, 12),
             makeCuboidShape(2, 7, 2, 14, 9, 14),
             makeCuboidShape(5, 9, 5, 11, 10, 11)
@@ -98,7 +98,7 @@ public class UpperBlock extends Block {
         tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
             if (!handler.hasPair()) return;
 
-            // Copied from nether portal block
+            // Copied from nether portal block, generates particles
             for (int i = 0; i < 4; ++i) {
                 int j = rand.nextInt(2) * 2 - 1;
 

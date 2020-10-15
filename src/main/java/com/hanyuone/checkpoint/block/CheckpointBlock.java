@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CheckpointBlock extends Block {
-    public static final VoxelShape LOWER = VoxelShapes.or(
+    private static final VoxelShape LOWER = VoxelShapes.or(
             makeCuboidShape(1, 0, 1, 15, 2, 15),
             makeCuboidShape(2, 2, 2, 14, 3, 14),
             makeCuboidShape(4, 3, 4, 12, 15, 12)
@@ -167,6 +167,8 @@ public class CheckpointBlock extends Block {
 
     @Override
     public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
+        // Checks if both the ground below is solid and the block above isn't occupied
+        // (i.e. there's a two-high space for the checkpoint to be placed)
         BlockPos under = pos.down();
         BlockState underState = worldIn.getBlockState(under);
 
@@ -183,14 +185,16 @@ public class CheckpointBlock extends Block {
             if (handler.hasPair()) {
                 // The checkpoint you're targeting is already paired
                 TranslationTextComponent title = new TranslationTextComponent("action.already_paired");
-                title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
+                title.applyTextStyle(TextFormatting.RED);
                 player.sendStatusMessage(title, true);
             } else if (!handler.isIdEmpty() && player.getUniqueID() != handler.getPlayerId()) {
                 // The broken half is already in "pairing mode"
                 TranslationTextComponent title = new TranslationTextComponent("action.pairing_mode");
-                title.applyTextStyles(TextFormatting.YELLOW, TextFormatting.BOLD);
+                title.applyTextStyle(TextFormatting.RED);
                 player.sendStatusMessage(title, true);
             } else {
+                TranslationTextComponent title = new TranslationTextComponent("action.pairing_success");
+                title.applyTextStyle(TextFormatting.GREEN);
                 interactedItem.damageItem(1, player, entity -> {});
                 this.setPlayerPair(worldIn, pos, player, tileEntity);
             }
