@@ -147,7 +147,10 @@ public class CheckpointTileEntity extends TileEntity {
             TileEntity otherEntity = worldIn.getTileEntity(this.pairHandler.getBlockPos());
 
             if (otherEntity instanceof CheckpointTileEntity) {
-                otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(ICheckpointPair::clearBlockPos);
+                otherEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+                    handler.clearBlockPos();
+                    handler.clearPlayerId();
+                });
                 otherEntity.markDirty();
             }
         }

@@ -29,7 +29,8 @@ Teleporting between checkpoints costs **ender pearls**, 1 for every 100 blocks (
 pearls can only stack in groups of 16, the maximum range is 1600 blocks in Vanilla.
 
 When one checkpoint in a pair breaks, the other will stop working. This is where the **pairer** comes in - right-click
-a broken checkpoint in order to have it pair with the next checkpoint you set down.
+a broken checkpoint in order to have it pair with the next checkpoint you set down. You can also use the pairer to
+link up two existing checkpoints that don't work individually.
 
 Checkpoints will also stop working if the other one in the pair is **obstructed** - i.e. if there are blocks at
 positions adjacent to the other checkpoint. This will be indicated in the GUI.

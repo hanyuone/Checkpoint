@@ -3,7 +3,6 @@ package com.hanyuone.checkpoint.block;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
-import com.hanyuone.checkpoint.item.PairerItem;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.SyncPlayerPacket;
 import com.hanyuone.checkpoint.register.BlockRegister;
@@ -29,7 +28,6 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
@@ -118,7 +116,7 @@ public class CheckpointBlock extends Block {
     //   of the first checkpoint
     // - if the player already placed down half of the pair, that player's checkpoint position
     //   is cleared and the first checkpoint is updated
-    private void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, TileEntity tileEntity) {
+    public void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, TileEntity tileEntity) {
         placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
             // If the player already has an existing half stored as a capability:
             if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
@@ -178,38 +176,12 @@ public class CheckpointBlock extends Block {
         return underState.isSolidSide(worldIn, under, Direction.UP) && !aboveState.isSolid();
     }
 
-    // Triggers whenever the player is using a pairer on a checkpoint
-    // (i.e. right-clicking a checkpoint with a pairer)
-    private void usePairer(World worldIn, BlockPos pos, PlayerEntity player, CheckpointTileEntity tileEntity, ItemStack interactedItem) {
-        tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-            if (handler.hasPair()) {
-                // The checkpoint you're targeting is already paired
-                TranslationTextComponent title = new TranslationTextComponent("action.already_paired");
-                title.applyTextStyle(TextFormatting.RED);
-                player.sendStatusMessage(title, true);
-            } else if (!handler.isIdEmpty() && player.getUniqueID() != handler.getPlayerId()) {
-                // The broken half is already in "pairing mode"
-                TranslationTextComponent title = new TranslationTextComponent("action.pairing_mode");
-                title.applyTextStyle(TextFormatting.RED);
-                player.sendStatusMessage(title, true);
-            } else {
-                TranslationTextComponent title = new TranslationTextComponent("action.pairing_success");
-                title.applyTextStyle(TextFormatting.GREEN);
-                interactedItem.damageItem(1, player, entity -> {});
-                this.setPlayerPair(worldIn, pos, player, tileEntity);
-            }
-        });
-    }
-
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (!worldIn.isRemote) {
             TileEntity tileEntity = worldIn.getTileEntity(pos);
-            ItemStack interactedItem = player.getHeldItem(handIn);
 
-            if (tileEntity instanceof CheckpointTileEntity && interactedItem.getItem() instanceof PairerItem) {
-                this.usePairer(worldIn, pos, player, (CheckpointTileEntity) tileEntity, interactedItem);
-            } else if (tileEntity instanceof CheckpointTileEntity) {
+            if (tileEntity instanceof CheckpointTileEntity) {
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
                     @Override
                     public ITextComponent getDisplayName() {
