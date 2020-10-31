@@ -14,6 +14,13 @@
   "gui.checkpoint.obstructed": "没有空位！",
   "gui.checkpoint.warp": "穿梭",
 
+  "action.already_paired": "此穿梭点已经成对过！",
+  "action.initiate_pair": "正在成对！",
+  "action.pairing_itself": "穿梭点无法与自己成对！",
+  "action.pairing_mode": "此穿梭点正在被其他人成对中！",
+  "action.pairing_success": "成对成功！",
+  "action.too_far": "您太远了，无法成对！",
+
   "tooltip.checkpoint.pair_location": "会与 %s 成对",
   "tooltip.checkpoint.not_paired": "尚未成对！"
 }

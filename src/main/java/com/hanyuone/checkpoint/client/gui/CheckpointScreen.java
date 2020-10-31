@@ -1,5 +1,6 @@
 package com.hanyuone.checkpoint.client.gui;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
@@ -40,7 +41,8 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
             CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
 
             this.cost = checkpointEntity.calculateCost();
-            this.suitablePos = checkpointEntity.suitablePos();
+            this.suitablePos = this.container.getSuitablePos();
+            Checkpoint.LOGGER.debug(this.suitablePos);
         }
 
         // Display button

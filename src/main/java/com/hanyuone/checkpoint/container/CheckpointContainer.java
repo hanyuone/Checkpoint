@@ -18,10 +18,14 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import javax.annotation.Nullable;
+
 
 public class CheckpointContainer extends Container {
     private final TileEntity tileEntity;
     private final IItemHandler inventory;
+
+    private final BlockPos suitablePos;
 
     // GUI constants
     private static final int SLOT_SIZE = 18;
@@ -32,7 +36,7 @@ public class CheckpointContainer extends Container {
     private static final int INVENTORY_ROWS = 3;
     private static final int INVENTORY_COLS = 9;
 
-    public CheckpointContainer(int id, World world, BlockPos pos, PlayerInventory inventory) {
+    public CheckpointContainer(int id, World world, BlockPos pos, PlayerInventory inventory, BlockPos suitablePos) {
         super(ContainerRegister.CHECKPOINT.get(), id);
 
         this.tileEntity = world.getTileEntity(pos);
@@ -43,6 +47,8 @@ public class CheckpointContainer extends Container {
                     addSlot(new SlotItemHandler(handler, 0, 46, 24))
             );
         }
+
+        this.suitablePos = suitablePos;
 
         addInventorySlots();
     }
@@ -141,5 +147,9 @@ public class CheckpointContainer extends Container {
 
     public TileEntity getTileEntity() {
         return this.tileEntity;
+    }
+
+    public BlockPos getSuitablePos() {
+        return this.suitablePos;
     }
 }

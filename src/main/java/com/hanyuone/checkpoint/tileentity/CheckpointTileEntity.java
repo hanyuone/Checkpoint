@@ -1,5 +1,6 @@
 package com.hanyuone.checkpoint.tileentity;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairHandler;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.checkpoint.ICheckpointPair;
@@ -14,11 +15,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.AbstractChunkProvider;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -172,22 +179,36 @@ public class CheckpointTileEntity extends TileEntity {
         }
     }
 
-    // Finds a suitable block to spawn on
-
-    // Assumes there is a suitable pair
+    // Finds a suitable block to spawn on (should be server-side)
     @Nullable
     public BlockPos suitablePos() {
-        BlockPos currentPos = this.pairHandler.getBlockPos();
-        BlockPos[] neighbours = {currentPos.north(), currentPos.east(), currentPos.south(), currentPos.west()};
+        if (!this.pairHandler.hasPair()) {
+            return null;
+        }
+
+        BlockPos pairPos = this.pairHandler.getBlockPos();
+        BlockPos[] neighbours = {pairPos.north(), pairPos.east(), pairPos.south(), pairPos.west()};
+
+        AbstractChunkProvider chunkProvider = this.world.getChunkProvider();
+        ServerWorld serverWorld = this.world.getServer().getWorld(DimensionType.OVERWORLD);
 
         for (BlockPos neighbour: neighbours) {
+            ChunkPos chunkPos = new ChunkPos(neighbour);
+            boolean needToLoad = !chunkProvider.isChunkLoaded(chunkPos);
+
+            if (needToLoad) {
+                serverWorld.forceChunk(chunkPos.x, chunkPos.z, true);
+            }
+
             BlockState currentState = this.world.getBlockState(neighbour);
-            Block currentBlock = currentState.getBlock();
-
             BlockState belowState = this.world.getBlockState(neighbour.down());
-            Block belowBlock = belowState.getBlock();
+            BlockState aboveState = this.world.getBlockState(neighbour.up());
 
-            if (currentBlock.isAir(currentState, this.world, neighbour) && belowBlock.isSolid(belowState)) {
+            if (needToLoad) {
+                serverWorld.forceChunk(chunkPos.x, chunkPos.z, false);
+            }
+
+            if (aboveState.isAir() && currentState.isAir() && belowState.isSolid()) {
                 return neighbour;
             }
         }

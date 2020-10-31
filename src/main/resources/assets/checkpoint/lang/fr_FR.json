@@ -6,13 +6,20 @@
 
   "advancement.construct": "Un moitié d'une paire",
   "advancement.construct.desc": "Fabriquer un point de contrôle",
-  "advancement.distance": "Plus vite que la métro",
+  "advancement.distance": "Plus vite que la lumière",
   "advancement.distance.desc": "Voyager 1000m avec les points de contrôle",
 
   "gui.checkpoint.cost": "Coûte: %d",
   "gui.checkpoint.not_paired": "Non couplé !",
   "gui.checkpoint.obstructed": "Obstrué !",
   "gui.checkpoint.warp": "Téléporter",
+
+  "action.already_paired": "Ce point est déjà couplé !",
+  "action.initiate_pair": "En train de coupler ce point !",
+  "action.pairing_itself": "Ne pas pouvoir coupler un point avec lui-même !",
+  "action.pairing_mode": "Ce point est déjà en train de couplé par un autre !",
+  "action.pairing_success": "Couplé avec succès !",
+  "action.too_far": "Ne pas pouvoir coupler, vous êtes trop loin !",
 
   "tooltip.checkpoint.pair_location": "Sera couplé avec %s",
   "tooltip.checkpoint.not_paired": "Ne pas être couplé !"

@@ -191,11 +191,23 @@ public class CheckpointBlock extends Block {
 
                     @Override
                     public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                        return new CheckpointContainer(i, worldIn, pos, playerInventory);
+                        BlockPos suitablePos = ((CheckpointTileEntity) tileEntity).suitablePos();
+                        return new CheckpointContainer(i, worldIn, pos, playerInventory, suitablePos);
                     }
                 };
                 
-                NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, tileEntity.getPos());
+                NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, (buffer) -> {
+                    buffer.writeBlockPos(tileEntity.getPos());
+
+                    BlockPos suitablePos = ((CheckpointTileEntity) tileEntity).suitablePos();
+
+                    if (suitablePos != null) {
+                        buffer.writeBoolean(true);
+                        buffer.writeBlockPos(suitablePos);
+                    } else {
+                        buffer.writeBoolean(false);
+                    }
+                });
             } else {
                 throw new IllegalStateException("Our named container provider is missing!");
             }

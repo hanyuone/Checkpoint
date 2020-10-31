@@ -17,6 +17,11 @@ public class ContainerRegister {
         BlockPos pos = data.readBlockPos();
         World world = inventory.player.getEntityWorld();
 
-        return new CheckpointContainer(id, world, pos, inventory);
+        if (data.readBoolean()) {
+            BlockPos suitablePos = data.readBlockPos();
+            return new CheckpointContainer(id, world, pos, inventory, suitablePos);
+        } else {
+            return new CheckpointContainer(id, world, pos, inventory, null);
+        }
     }));
 }
