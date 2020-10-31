@@ -100,8 +100,6 @@ public class UpperBlock extends Block {
 
             // Copied from nether portal block, generates particles
             for (int i = 0; i < 4; ++i) {
-                int j = rand.nextInt(2) * 2 - 1;
-
                 double x = (double)pos.getX() + (double)rand.nextFloat();
                 double y = (double)pos.getY() + (double)rand.nextFloat();
                 double z = (double)pos.getZ() + (double)rand.nextFloat();

@@ -1,5 +1,6 @@
 package com.hanyuone.checkpoint.block;
 
+import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;

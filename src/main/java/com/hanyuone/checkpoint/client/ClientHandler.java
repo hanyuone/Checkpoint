@@ -22,4 +22,12 @@ public class ClientHandler {
         title.applyTextStyle(format);
         player.sendStatusMessage(title, true);
     }
+
+    public static void displayError(PlayerEntity player, String key) {
+        ClientHandler.displayNotification(player, key, TextFormatting.RED);
+    }
+
+    public static void displaySuccess(PlayerEntity player, String key) {
+        ClientHandler.displayNotification(player, key, TextFormatting.GREEN);
+    }
 }

@@ -17,10 +17,7 @@ import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PairerItem extends Item {
     public PairerItem() {
@@ -30,20 +27,26 @@ public class PairerItem extends Item {
                 .defaultMaxDamage(16));
     }
 
-    // Triggers whenever the player is using a pairer on a checkpoint
-    // (i.e. right-clicking a checkpoint with a pairer)
-    private void usePairer(World worldIn, BlockPos pos, PlayerEntity player, CheckpointTileEntity tileEntity, ItemStack interactedItem) {
+    // Checks to see if a checkpoint can be paired from a tile entity's perspective
+    private void checkTileEntity(World worldIn, BlockPos pos, PlayerEntity player, CheckpointTileEntity tileEntity, ItemStack interactedItem, Boolean playerHasPair) {
         tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
             if (handler.hasPair()) {
                 // The checkpoint you're targeting is already paired
-                ClientHandler.displayNotification(player, "action.already_paired", TextFormatting.RED);
+                ClientHandler.displayError(player, "action.already_paired");
             } else if (!handler.isIdEmpty() && player.getUniqueID() != handler.getPlayerId()) {
                 // The broken half is already in "pairing mode"
-                ClientHandler.displayNotification(player, "action.pairing_mode", TextFormatting.RED);
+                ClientHandler.displayError(player, "action.pairing_mode");
+            } else if (!playerHasPair) {
+                // The checks are successful, and we trigger this if the player doesn't already have
+                // a checkpoint stored in memory
+                ClientHandler.displaySuccess(player, "action.initiate_pair");
+                ((CheckpointBlock) BlockRegister.CHECKPOINT.get()).setPlayerPair(worldIn, pos, player, tileEntity);
             } else {
-                ClientHandler.displayNotification(player, "action.pairing_success", TextFormatting.GREEN);
+                // We've successfully paired two checkpoints, we reduce durability and link the two
+                // checkpoints together
+                ClientHandler.displaySuccess(player, "action.pairing_success");
                 interactedItem.damageItem(1, player, entity -> {});
-                ((CheckpointBlock)BlockRegister.CHECKPOINT.get()).setPlayerPair(worldIn, pos, player, tileEntity);
+                ((CheckpointBlock) BlockRegister.CHECKPOINT.get()).setPlayerPair(worldIn, pos, player, tileEntity);
             }
         });
     }
@@ -61,7 +64,6 @@ public class PairerItem extends Item {
 
         if (targetBlock instanceof CheckpointBlock || targetBlock instanceof UpperBlock) {
             PlayerEntity player = context.getPlayer();
-            AtomicBoolean hasFailed = new AtomicBoolean(false);
             BlockPos finalPos;
 
             // Makes sure the actual position is on the lower half of the checkpoint
@@ -75,14 +77,19 @@ public class PairerItem extends Item {
 
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(handler -> {
                 if (!handler.hasPair()) {
-                    ClientHandler.displayNotification(player, "action.initiate_pair", TextFormatting.GREEN);
-                } else if (handler.hasPair() && isTooFar(finalPos, handler.getBlockPos())) {
-                    if (world.isRemote) {
-                        ClientHandler.displayNotification(player, "action.too_far", TextFormatting.RED);
-                        hasFailed.set(true);
-                    }
+                    // Directly checks the tile entity capability, since the checks we have to perform are the same
+                    this.checkTileEntity(world, finalPos, player, (CheckpointTileEntity) tileEntity, stack, false);
                 } else {
-                    this.usePairer(world, finalPos, player, (CheckpointTileEntity) tileEntity, stack);
+                    // The player already has a checkpoint "remembered" in memory
+                    if (isTooFar(finalPos, handler.getBlockPos())) {
+                        // The second checkpoint is too far from the first one, can't pair
+                        ClientHandler.displayError(player, "action.too_far");
+                    } else if (handler.getBlockPos() == finalPos) {
+                        ClientHandler.displayError(player, "action.pairing_itself");
+                    } else {
+                        // Interacts with the tile entity capability
+                        this.checkTileEntity(world, finalPos, player, (CheckpointTileEntity) tileEntity, stack, true);
+                    }
                 }
             });
         }
