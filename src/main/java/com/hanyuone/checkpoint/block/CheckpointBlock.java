@@ -117,24 +117,22 @@ public class CheckpointBlock extends Block {
     //   of the first checkpoint
     // - if the player already placed down half of the pair, that player's checkpoint position
     //   is cleared and the first checkpoint is updated
-    public void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, TileEntity tileEntity) {
+    public void setPlayerPair(World worldIn, BlockPos pos, @Nonnull LivingEntity placer, CheckpointTileEntity tileEntity) {
         placer.getCapability(PlayerCapabilityProvider.PLAYER_CAPABILITY, null).ifPresent(placerHandler -> {
             // If the player already has an existing half stored as a capability:
             if (placerHandler.hasPair() && !placerHandler.getBlockPos().equals(pos)) {
                 BlockPos oldPos = placerHandler.getBlockPos();
-                TileEntity oldEntity = worldIn.getTileEntity(oldPos);
+                CheckpointTileEntity oldEntity = (CheckpointTileEntity) worldIn.getTileEntity(oldPos);
 
                 // Link both halves of the checkpoint pair together
                 // (also notify the world of changes so client will render GUI properly)
-                if (tileEntity instanceof CheckpointTileEntity && oldEntity instanceof CheckpointTileEntity) {
-                    tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setBlockPos(oldPos));
-                    tileEntity.markDirty();
-                    worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
+                tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setBlockPos(oldPos));
+                tileEntity.markDirty();
+                worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
 
-                    oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> oldHandler.setBlockPos(pos));
-                    oldEntity.markDirty();
-                    worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
-                }
+                oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> oldHandler.setBlockPos(pos));
+                oldEntity.markDirty();
+                worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
 
                 // Clear the player capability
                 placerHandler.clearBlockPos();
@@ -142,6 +140,10 @@ public class CheckpointBlock extends Block {
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
             } else {
                 // Add to the player capability
+                tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setPlayerId(placer.getUniqueID()));
+                tileEntity.markDirty();
+                worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
+
                 placerHandler.setBlockPos(pos);
                 SyncPlayerPacket packet = new SyncPlayerPacket(true, pos, placerHandler.getDistanceWarped());
                 CheckpointPacketHandler.INSTANCE.sendToServer(packet);
@@ -155,13 +157,7 @@ public class CheckpointBlock extends Block {
         worldIn.setBlockState(pos.up(), BlockRegister.CHECKPOINT_UPPER.get().getDefaultState(), 3);
 
         if (placer == null) return;
-
-        if (tileEntity instanceof CheckpointTileEntity) {
-            tileEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(entityHandler -> entityHandler.setPlayerId(placer.getUniqueID()));
-            tileEntity.markDirty();
-        }
-
-        this.setPlayerPair(worldIn, pos, placer, tileEntity);
+        this.setPlayerPair(worldIn, pos, placer, (CheckpointTileEntity) tileEntity);
     }
 
     @Override

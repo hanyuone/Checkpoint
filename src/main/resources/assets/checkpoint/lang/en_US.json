@@ -22,6 +22,9 @@
   "action.pairing_success": "Successfully paired!",
   "action.too_far": "Cannot pair, out of range!",
 
+  "hover.pairing_mode": "Currently being paired",
+  "hover.paired": "Paired to %s",
+
   "tooltip.checkpoint.pair_location": "Will be paired to %s",
   "tooltip.checkpoint.not_paired": "Not paired!"
 }

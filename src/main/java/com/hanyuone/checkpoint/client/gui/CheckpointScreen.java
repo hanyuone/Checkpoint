@@ -7,6 +7,8 @@ import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.WarpPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -17,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.awt.*;
 
 @OnlyIn(Dist.CLIENT)
 public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
@@ -42,15 +46,17 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
 
             this.cost = checkpointEntity.calculateCost();
             this.suitablePos = this.container.getSuitablePos();
-            Checkpoint.LOGGER.debug(this.suitablePos);
         }
 
         // Display button
         String warpButtonText = I18n.format("gui.checkpoint.warp");
-        int buttonLeft = this.guiLeft + (this.xSize * 2 / 3) - (40 / 2);
+        FontRenderer renderer = Minecraft.getInstance().fontRenderer;
+        int width = renderer.getStringWidth(warpButtonText) + 20;
+
+        int buttonLeft = this.guiLeft + (this.xSize * 2 / 3) - (width / 2);
         int buttonTop = this.guiTop + 32;
 
-        this.warpButton = new Button(buttonLeft, buttonTop, 40, 20, warpButtonText, button -> {
+        this.warpButton = new Button(buttonLeft, buttonTop, width, 20, warpButtonText, button -> {
             if (containerEntity instanceof CheckpointTileEntity) {
                 CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
 

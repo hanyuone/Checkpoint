@@ -1,6 +1,7 @@
 {
   "block.checkpoint.checkpoint": "Point de contrôle",
   "container.checkpoint.checkpoint": "Point de contrôle",
+  "item.checkpoint.pairer": "Coupleur",
 
   "itemGroup.checkpointTab": "Point de contrôle",
 
@@ -20,6 +21,9 @@
   "action.pairing_mode": "Ce point est déjà en train de couplé par un autre !",
   "action.pairing_success": "Couplé avec succès !",
   "action.too_far": "Ne pas pouvoir coupler, vous êtes trop loin !",
+
+  "hover.pairing_mode": "Être en train de couplé",
+  "hover.paired": "Couplé avec %s",
 
   "tooltip.checkpoint.pair_location": "Sera couplé avec %s",
   "tooltip.checkpoint.not_paired": "Ne pas être couplé !"

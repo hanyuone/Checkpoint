@@ -1,6 +1,7 @@
 {
   "block.checkpoint.checkpoint": "穿梭点",
   "container.checkpoint.checkpoint": "穿梭点",
+  "item.checkpoint.pairer": "成对器",
 
   "itemGroup.checkpointTab": "穿梭点",
 
@@ -20,6 +21,9 @@
   "action.pairing_mode": "此穿梭点正在被其他人成对中！",
   "action.pairing_success": "成对成功！",
   "action.too_far": "您太远了，无法成对！",
+
+  "hover.pairing_mode": "正在成对",
+  "hover.paired": "与 %s 成对",
 
   "tooltip.checkpoint.pair_location": "会与 %s 成对",
   "tooltip.checkpoint.not_paired": "尚未成对！"
