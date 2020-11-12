@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.block;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.capability.player.PlayerCapabilityProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
@@ -130,9 +129,12 @@ public class CheckpointBlock extends Block {
                 tileEntity.markDirty();
                 worldIn.notifyBlockUpdate(pos, worldIn.getBlockState(pos), worldIn.getBlockState(pos), 3);
 
-                oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> oldHandler.setBlockPos(pos));
-                oldEntity.markDirty();
-                worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
+                if (oldEntity != null) {
+                    oldEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(oldHandler -> oldHandler.setBlockPos(pos));
+                    oldEntity.markDirty();
+                    worldIn.notifyBlockUpdate(oldPos, worldIn.getBlockState(oldPos), worldIn.getBlockState(oldPos), 3);
+
+                }
 
                 // Clear the player capability
                 placerHandler.clearBlockPos();

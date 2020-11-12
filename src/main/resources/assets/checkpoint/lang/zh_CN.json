@@ -13,6 +13,7 @@
   "gui.checkpoint.cost": "费用：%s",
   "gui.checkpoint.not_paired": "尚未成对！",
   "gui.checkpoint.obstructed": "没有空位！",
+  "gui.checkpoint.too_far": "距离太远！",
   "gui.checkpoint.warp": "穿梭",
 
   "action.already_paired": "此穿梭点已经成对过！",

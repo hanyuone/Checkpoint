@@ -1,6 +1,5 @@
 package com.hanyuone.checkpoint.client.gui;
 
-import com.hanyuone.checkpoint.Checkpoint;
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
@@ -13,14 +12,13 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.awt.*;
 
 @OnlyIn(Dist.CLIENT)
 public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
@@ -100,6 +98,8 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         // a pair
         if (this.cost <= 0) {
             costText = I18n.format("gui.checkpoint.not_paired");
+        } else if (this.cost > Items.ENDER_PEARL.getMaxStackSize()) {
+            costText = I18n.format("gui.checkpoint.too_far");
         } else if (this.suitablePos == null) {
             costText = I18n.format("gui.checkpoint.obstructed");
         } else {

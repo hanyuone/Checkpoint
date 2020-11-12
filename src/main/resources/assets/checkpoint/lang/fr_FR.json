@@ -13,6 +13,7 @@
   "gui.checkpoint.cost": "Coûte: %d",
   "gui.checkpoint.not_paired": "Non couplé !",
   "gui.checkpoint.obstructed": "Obstrué !",
+  "gui.checkpoint.too_far": "Trop loin !",
   "gui.checkpoint.warp": "Téléporter",
 
   "action.already_paired": "Ce point est déjà couplé !",
