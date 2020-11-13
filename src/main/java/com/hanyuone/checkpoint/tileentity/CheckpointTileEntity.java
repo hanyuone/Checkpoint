@@ -133,18 +133,35 @@ public class CheckpointTileEntity extends TileEntity {
     public int calculateCost() {
         if (this.pairHandler.hasPair()) {
             double distance = Math.sqrt(this.pos.distanceSq(this.pairHandler.getBlockPos()));
-            return (int) Math.ceil(distance / 100);
+            return (int) Math.ceil(distance / 100) - this.pairHandler.getChargingPearls();
         } else {
             return -1;
         }
     }
 
+    // Get the number of ender pearls stored in the ItemStackHandler capability
     public int getEnderPearls() {
         return this.pearlHandler.getStackInSlot(0).getCount();
     }
 
+    // Spend ender pearls:
+    // - if the amount of ender pearls stored in the checkpoint aren't enough
+    //   to cover the cost of teleportation, store them up in the checkpoint itself
+    //   as "charging pearls"
+    // - if it *is* enough (+ charging pearls), spend it all and reset the amount
+    //   of charging pearls to 0
     public void spendEnderPearls() {
-        this.pearlHandler.extractItem(0, this.calculateCost(), false);
+        int availablePearls = this.getEnderPearls();
+        int cost = this.calculateCost();
+
+        if (availablePearls < cost) {
+            this.pearlHandler.extractItem(0, availablePearls, false);
+            this.pairHandler.setChargingPearls(availablePearls + this.pairHandler.getChargingPearls());
+        } else {
+            this.pearlHandler.extractItem(0, cost, false);
+            this.pairHandler.setChargingPearls(0);
+        }
+
         this.markDirty();
     }
 

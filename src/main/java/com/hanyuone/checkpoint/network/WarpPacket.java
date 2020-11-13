@@ -41,15 +41,8 @@ public class WarpPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity player = ctx.get().getSender();
 
-            // Spend ender pearls on the checkpoint you're warping from
+            // Actual warping
             BlockPos location = message.entityLocation;
-            TileEntity entity = player.getServerWorld().getTileEntity(location);
-
-            if (entity instanceof CheckpointTileEntity) {
-                CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) entity;
-                checkpointEntity.spendEnderPearls();
-            }
-
             BlockPos destination = message.destination;
 
             // Adjust to make the player stand in the centre of the block

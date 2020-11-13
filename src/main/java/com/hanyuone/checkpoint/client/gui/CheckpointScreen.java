@@ -2,6 +2,7 @@ package com.hanyuone.checkpoint.client.gui;
 
 import com.hanyuone.checkpoint.capability.checkpoint.CheckpointPairProvider;
 import com.hanyuone.checkpoint.container.CheckpointContainer;
+import com.hanyuone.checkpoint.network.ChargePacket;
 import com.hanyuone.checkpoint.network.CheckpointPacketHandler;
 import com.hanyuone.checkpoint.network.WarpPacket;
 import com.hanyuone.checkpoint.tileentity.CheckpointTileEntity;
@@ -12,7 +13,6 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -55,17 +55,33 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         int buttonTop = this.guiTop + 32;
 
         this.warpButton = new Button(buttonLeft, buttonTop, width, 20, warpButtonText, button -> {
-            if (containerEntity instanceof CheckpointTileEntity) {
-                CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
+            // Skip the rest of the function if the checkpoint isn't an
+            // instance of CheckpointTileEntity
+            if (!(containerEntity instanceof CheckpointTileEntity)) return;
 
-                containerEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                    if (handler.hasPair() && this.suitablePos != null) {
-                        BlockPos pos = this.suitablePos;
-                        WarpPacket packet = new WarpPacket(checkpointEntity.getPos(), pos);
-                        CheckpointPacketHandler.INSTANCE.sendToServer(packet);
-                    }
-                });
-            }
+            CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
+
+            checkpointEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+                // If the position isn't even valid then the button shouldn't
+                // work anyway, so we return to stop the button from doing anything
+                // in the event that the button somehow remains clickable
+                if (!handler.hasPair() || this.suitablePos == null) return;
+
+                BlockPos checkpointPos = checkpointEntity.getPos();
+                int pearls = checkpointEntity.getEnderPearls();
+
+                // This should be done first, since ChargePacket also syncs up
+                // between client and server, which changes `calculateCost()`
+                if (pearls >= checkpointEntity.calculateCost()) {
+                    BlockPos pos = this.suitablePos;
+                    WarpPacket packet = new WarpPacket(checkpointPos, pos);
+                    CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+                }
+
+                ChargePacket chargePacket = new ChargePacket(checkpointPos);
+                CheckpointPacketHandler.INSTANCE.sendToServer(chargePacket);
+
+            });
         });
 
         this.addButton(this.warpButton);
@@ -98,8 +114,6 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         // a pair
         if (this.cost <= 0) {
             costText = I18n.format("gui.checkpoint.not_paired");
-        } else if (this.cost > Items.ENDER_PEARL.getMaxStackSize()) {
-            costText = I18n.format("gui.checkpoint.too_far");
         } else if (this.suitablePos == null) {
             costText = I18n.format("gui.checkpoint.obstructed");
         } else {
@@ -107,9 +121,7 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
             topColour = 0x84ea2e;
             bottomColour = 0x203e08;
 
-            // Checks whether we actually have enough ender pearls to transport us
-            CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) this.container.getTileEntity();
-            this.warpButton.active = checkpointEntity.getEnderPearls() >= this.cost;
+            this.warpButton.active = true;
         }
 
         // Configures a "layered text", similar to how anvils do it with "Enchantment cost"

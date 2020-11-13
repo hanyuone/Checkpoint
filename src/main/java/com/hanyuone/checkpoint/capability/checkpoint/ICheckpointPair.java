@@ -13,6 +13,9 @@ public interface ICheckpointPair {
     void setPlayerId(UUID id);
     void clearPlayerId();
 
+    int getChargingPearls();
+    void setChargingPearls(int pearls);
+
     boolean hasPair();
     boolean isIdEmpty();
 }

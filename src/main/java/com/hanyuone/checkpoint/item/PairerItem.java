@@ -51,10 +51,6 @@ public class PairerItem extends Item {
         });
     }
 
-    private static boolean isTooFar(BlockPos pos, BlockPos dest) {
-        return !pos.withinDistance(dest, Items.ENDER_PEARL.getMaxStackSize() * 100);
-    }
-
     @Override
     public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
         World world = context.getWorld();
@@ -81,10 +77,7 @@ public class PairerItem extends Item {
                     this.checkTileEntity(world, finalPos, player, (CheckpointTileEntity) tileEntity, stack, false);
                 } else {
                     // The player already has a checkpoint "remembered" in memory
-                    if (isTooFar(finalPos, handler.getBlockPos())) {
-                        // The second checkpoint is too far from the first one, can't pair
-                        ClientHandler.displayError(player, "action.too_far");
-                    } else if (handler.getBlockPos() == finalPos) {
+                    if (handler.getBlockPos() == finalPos) {
                         ClientHandler.displayError(player, "action.pairing_itself");
                     } else {
                         // Interacts with the tile entity capability

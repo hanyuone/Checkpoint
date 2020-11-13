@@ -13,7 +13,6 @@
   "gui.checkpoint.cost": "Cost: %d",
   "gui.checkpoint.not_paired": "Not paired!",
   "gui.checkpoint.obstructed": "Obstructed!",
-  "gui.checkpoint.too_far": "Too far!",
   "gui.checkpoint.warp": "Warp",
 
   "action.already_paired": "This checkpoint is already paired!",
@@ -21,7 +20,6 @@
   "action.pairing_itself": "Cannot pair a checkpoint to itself!",
   "action.pairing_mode": "This checkpoint is being paired by someone else!",
   "action.pairing_success": "Successfully paired!",
-  "action.too_far": "Cannot pair, out of range!",
 
   "hover.pairing_mode": "Currently being paired",
   "hover.paired": "Paired to %s",

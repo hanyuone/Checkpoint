@@ -9,7 +9,10 @@ import java.util.UUID;
 public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<CompoundNBT> {
     private BlockPos pos;
     private boolean hasPair;
+
     private UUID playerId;
+
+    private int chargingPearls;
 
     private static final UUID EMPTY_UUID = new UUID(0, 0);
 
@@ -18,6 +21,8 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
         this.hasPair = false;
         // Default value, since the upper half can't be null (triggering NPE)
         this.playerId = EMPTY_UUID;
+        // Default value
+        this.chargingPearls = 0;
     }
 
     @Override
@@ -50,6 +55,16 @@ public class CheckpointPairHandler implements ICheckpointPair, INBTSerializable<
     @Override
     public void clearPlayerId() {
         this.playerId = EMPTY_UUID;
+    }
+
+    @Override
+    public int getChargingPearls() {
+        return this.chargingPearls;
+    }
+
+    @Override
+    public void setChargingPearls(int pearls) {
+        this.chargingPearls = pearls;
     }
 
     @Override

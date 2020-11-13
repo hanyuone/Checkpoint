@@ -13,7 +13,6 @@
   "gui.checkpoint.cost": "Coûte: %d",
   "gui.checkpoint.not_paired": "Non couplé !",
   "gui.checkpoint.obstructed": "Obstrué !",
-  "gui.checkpoint.too_far": "Trop loin !",
   "gui.checkpoint.warp": "Téléporter",
 
   "action.already_paired": "Ce point est déjà couplé !",
@@ -21,7 +20,6 @@
   "action.pairing_itself": "Ne pas pouvoir coupler un point avec lui-même !",
   "action.pairing_mode": "Ce point est déjà en train de couplé par un autre !",
   "action.pairing_success": "Couplé avec succès !",
-  "action.too_far": "Ne pas pouvoir coupler, vous êtes trop loin !",
 
   "hover.pairing_mode": "Être en train de couplé",
   "hover.paired": "Couplé avec %s",
