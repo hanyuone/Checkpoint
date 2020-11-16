@@ -133,7 +133,7 @@ public class CheckpointTileEntity extends TileEntity {
     public int calculateCost() {
         if (this.pairHandler.hasPair()) {
             double distance = Math.sqrt(this.pos.distanceSq(this.pairHandler.getBlockPos()));
-            return (int) Math.ceil(distance / 100) - this.pairHandler.getChargingPearls();
+            return (int) Math.ceil(distance / 100);
         } else {
             return -1;
         }
@@ -142,6 +142,11 @@ public class CheckpointTileEntity extends TileEntity {
     // Get the number of ender pearls stored in the ItemStackHandler capability
     public int getEnderPearls() {
         return this.pearlHandler.getStackInSlot(0).getCount();
+    }
+
+    // Programmatically get the amount of pearls "stored" in checkpoint
+    public int getChargingPearls() {
+        return this.pairHandler.getChargingPearls();
     }
 
     // Spend ender pearls:
@@ -153,12 +158,13 @@ public class CheckpointTileEntity extends TileEntity {
     public void spendEnderPearls() {
         int availablePearls = this.getEnderPearls();
         int cost = this.calculateCost();
+        int chargingPearls = this.pairHandler.getChargingPearls();
 
-        if (availablePearls < cost) {
+        if (availablePearls + chargingPearls < cost) {
             this.pearlHandler.extractItem(0, availablePearls, false);
             this.pairHandler.setChargingPearls(availablePearls + this.pairHandler.getChargingPearls());
         } else {
-            this.pearlHandler.extractItem(0, cost, false);
+            this.pearlHandler.extractItem(0, cost - chargingPearls, false);
             this.pairHandler.setChargingPearls(0);
         }
 

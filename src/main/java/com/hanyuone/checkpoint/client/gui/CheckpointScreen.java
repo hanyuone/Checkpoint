@@ -54,37 +54,40 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         int buttonLeft = this.guiLeft + (this.xSize * 2 / 3) - (width / 2);
         int buttonTop = this.guiTop + 32;
 
-        this.warpButton = new Button(buttonLeft, buttonTop, width, 20, warpButtonText, button -> {
-            // Skip the rest of the function if the checkpoint isn't an
-            // instance of CheckpointTileEntity
-            if (!(containerEntity instanceof CheckpointTileEntity)) return;
-
-            CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
-
-            checkpointEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
-                // If the position isn't even valid then the button shouldn't
-                // work anyway, so we return to stop the button from doing anything
-                // in the event that the button somehow remains clickable
-                if (!handler.hasPair() || this.suitablePos == null) return;
-
-                BlockPos checkpointPos = checkpointEntity.getPos();
-                int pearls = checkpointEntity.getEnderPearls();
-
-                // This should be done first, since ChargePacket also syncs up
-                // between client and server, which changes `calculateCost()`
-                if (pearls >= checkpointEntity.calculateCost()) {
-                    BlockPos pos = this.suitablePos;
-                    WarpPacket packet = new WarpPacket(checkpointPos, pos);
-                    CheckpointPacketHandler.INSTANCE.sendToServer(packet);
-                }
-
-                ChargePacket chargePacket = new ChargePacket(checkpointPos);
-                CheckpointPacketHandler.INSTANCE.sendToServer(chargePacket);
-
-            });
-        });
+        this.warpButton = new Button(buttonLeft, buttonTop, width, 20, warpButtonText, button -> onButtonPress(containerEntity));
 
         this.addButton(this.warpButton);
+    }
+
+    private void onButtonPress(TileEntity containerEntity) {
+        // Skip the rest of the function if the checkpoint isn't an
+        // instance of CheckpointTileEntity
+        if (!(containerEntity instanceof CheckpointTileEntity)) return;
+
+        CheckpointTileEntity checkpointEntity = (CheckpointTileEntity) containerEntity;
+
+        checkpointEntity.getCapability(CheckpointPairProvider.CHECKPOINT_PAIR, null).ifPresent(handler -> {
+            // If the position isn't even valid then the button shouldn't
+            // work anyway, so we return to stop the button from doing anything
+            // in the event that the button somehow remains clickable
+            if (!handler.hasPair() || this.suitablePos == null) return;
+
+            BlockPos checkpointPos = checkpointEntity.getPos();
+            int pearls = checkpointEntity.getEnderPearls();
+            int chargingPearls = checkpointEntity.getChargingPearls();
+
+            // This should be done first, since ChargePacket also syncs up
+            // between client and server, which changes `calculateCost()`
+            if (pearls + chargingPearls >= this.cost) {
+                BlockPos pos = this.suitablePos;
+                WarpPacket packet = new WarpPacket(checkpointPos, pos);
+                CheckpointPacketHandler.INSTANCE.sendToServer(packet);
+            }
+
+            ChargePacket chargePacket = new ChargePacket(checkpointPos);
+            CheckpointPacketHandler.INSTANCE.sendToServer(chargePacket);
+
+        });
     }
 
     @Override
@@ -117,7 +120,8 @@ public class CheckpointScreen extends ContainerScreen<CheckpointContainer> {
         } else if (this.suitablePos == null) {
             costText = I18n.format("gui.checkpoint.obstructed");
         } else {
-            costText = I18n.format("gui.checkpoint.cost", cost);
+            int chargingPearls = ((CheckpointTileEntity) this.container.getTileEntity()).getChargingPearls();
+            costText = I18n.format("gui.checkpoint.cost", chargingPearls + "/" + this.cost);
             topColour = 0x84ea2e;
             bottomColour = 0x203e08;
 
