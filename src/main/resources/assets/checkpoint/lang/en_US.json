@@ -8,7 +8,7 @@
   "advancement.construct": "Half of a Whole",
   "advancement.construct.desc": "Craft a checkpoint",
   "advancement.distance": "Do the Time Warp Again",
-  "advancement.distance.desc": "Travel 1000m with checkpoints",
+  "advancement.distance.desc": "Travel 10,000m with checkpoints",
 
   "gui.checkpoint.cost": "Cost: %d",
   "gui.checkpoint.not_paired": "Not paired!",

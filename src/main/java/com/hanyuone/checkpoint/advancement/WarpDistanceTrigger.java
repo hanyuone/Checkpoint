@@ -73,7 +73,7 @@ public class WarpDistanceTrigger implements ICriterionTrigger<WarpDistanceTrigge
         }
 
         public boolean test(int distanceWarped) {
-            return distanceWarped >= 1000;
+            return distanceWarped >= 10000;
         }
     }
 

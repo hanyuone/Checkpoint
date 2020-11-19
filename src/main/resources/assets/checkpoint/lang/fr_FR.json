@@ -8,7 +8,7 @@
   "advancement.construct": "Un moitié d'une paire",
   "advancement.construct.desc": "Fabriquer un point de contrôle",
   "advancement.distance": "Plus vite que la lumière",
-  "advancement.distance.desc": "Voyager 1000m avec les points de contrôle",
+  "advancement.distance.desc": "Voyager 10,000m avec les points de contrôle",
 
   "gui.checkpoint.cost": "Coûte: %d",
   "gui.checkpoint.not_paired": "Non couplé !",
